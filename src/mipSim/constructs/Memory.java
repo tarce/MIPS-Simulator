@@ -1,8 +1,6 @@
 package mipSim.constructs;
 
-import instructions.Instruction;
-import instructions.Instruction.InstException;
-import static instructions.Instruction.Type.*;
+import static mipSim.instructions.Instruction.Type.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -10,16 +8,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import mipSim.instructions.Data;
+import mipSim.instructions.Instruction;
+import mipSim.instructions.Instruction.InstException;
 
 public class Memory {
 	
 	private int PC;								//the program counter
 	private static byte[] BYTE_INPUT;			//byte array of input file
-	private Map<Integer, Instruction> CONTENTS; //instruction contents of memory
-	private ArrayList<Integer> DATA;
+	private ArrayList <Instruction> CONTENTS;	//instruction contents of memory
+	private ArrayList<Data> DATA;			//data contents of memory
 	
 	private int INST_START_ADDRS;
 	private int DATA_START_ADDRS;
@@ -27,8 +27,8 @@ public class Memory {
 	public Memory (int pc) {
 		PC= pc;
 		INST_START_ADDRS = pc;
-		CONTENTS = new HashMap <Integer,Instruction> ();
-		DATA = new ArrayList <Integer> ();
+		CONTENTS = new ArrayList <Instruction> ();
+		DATA = new ArrayList <Data> ();
 	}
 	
 	public int getPC() {
@@ -44,23 +44,50 @@ public class Memory {
 	
 	}
 	
-	public void write (String fileName) {
+	public void write (String fileName) throws FileNotFoundException {
+		PrintWriter out = new PrintWriter(fileName); 
+
+		int j = 0;
+        int curAddrs = INST_START_ADDRS + (j * 4);
+		for (Instruction i: CONTENTS){
+            String instruction = i.toString();
+            String binary_inst = i.BINARY_STRING;
+            out.write(binary_inst + " " + curAddrs + " " + instruction + "\n");            
+            j++;
+            curAddrs = INST_START_ADDRS + (j * 4);
+		}
 		
+		for (Data d: DATA) {
+			int data_val = d.VALUE;
+			String binary_data = d.BINARY_STRING;
+			out.write(binary_data + " " + curAddrs + " " + data_val + "\n");
+			j++;
+			curAddrs = INST_START_ADDRS + (j * 4);
+		}
+
+		out.close();
 	}
 	
 	public void print () {
-		for (Integer address: CONTENTS.keySet()){
-            String instruction = CONTENTS.get(address).toString();
-            String binary_inst = CONTENTS.get(address).BINARY_STRING;
-            System.out.println(binary_inst + " " + address + " " + instruction); 
+		
+		int j = 0;
+        int curAddrs = INST_START_ADDRS + (j * 4);
+		for (Instruction i: CONTENTS){
+            String instruction = i.toString();
+            String binary_inst = i.BINARY_STRING;
+            System.out.println(binary_inst + " " + curAddrs + " " + instruction);            
+            j++;
+            curAddrs = INST_START_ADDRS + (j * 4);
 		}
-		for (Integer i: DATA) {
-			System.out.println(i);
+		
+		for (Data d: DATA) {
+			int data_val = d.VALUE;
+			String binary_data = d.BINARY_STRING;
+			System.out.println(binary_data + " " + curAddrs + " " + data_val);
+			j++;
+			curAddrs = INST_START_ADDRS + (j * 4);
 		}
-	}
-	
-	private void add (int address, Instruction inst) {
-		CONTENTS.put(address, inst);
+		
 	}
 	
 	private void createContents() {
@@ -77,29 +104,23 @@ public class Memory {
 			} catch (InstException e) {
 				Log.add(e); //TODO: does this work?
 			}
-			this.add(startAddrs, inst);
+			CONTENTS.add(inst);
 			if (inst.TYPE == BREAK) {
 				stop = true;
 			}
 			byteCount += 4;
 			startAddrs += 4;
 		}
+		
+		DATA_START_ADDRS = startAddrs;
 
 		while (byteCount < BYTE_INPUT.length) {
-			Integer data = (int) createData(byteCount, BYTE_INPUT);
+			Data data = new Data (byteCount, BYTE_INPUT);
 			DATA.add(data);
 			byteCount += 4;
 			startAddrs += 4;
 		}
 		
-	}
-	
-	private long createData(int startByte, byte[] binary_inst) {
-		long instruction = ((binary_inst[startByte]&0xFF) << 24) |
-				((binary_inst[startByte+1]&0xFF) << 16) |
-				((binary_inst[startByte+2]&0xFF) << 8)  |
-				(binary_inst[startByte+3]&0xFF); 
-		return instruction;
 	}
 	
 	private void createByteArray(File file) {

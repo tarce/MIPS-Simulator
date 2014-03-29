@@ -1,5 +1,7 @@
 package mipSim;
 
+import java.io.FileNotFoundException;
+
 import mipSim.constructs.Log;
 import mipSim.constructs.Memory;
 
@@ -67,7 +69,12 @@ public class MIPSimulator {
 
 	private static void disassemble() {
 		System.out.println("Starting disassembler...");
-		MAIN_MEMORY.print();
+		try {
+			MAIN_MEMORY.write(OUTPUT_FILE);
+		} catch (FileNotFoundException e) {
+			Log.add(e);
+		}
+		System.out.println("Disassembly complete.");
 	}
 	
 }
