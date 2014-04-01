@@ -3,9 +3,11 @@ bin/
 .settings/
 .classpath
 .project
+fibonacci_bin.bin
 
 #program specific files
 output.txt
+.gitignore~
 
 #java specific
 *.class
