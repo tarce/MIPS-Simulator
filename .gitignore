@@ -2,6 +2,7 @@
 bin/
 .settings/
 .classpath
+.project
 
 #program specific files
 output.txt
