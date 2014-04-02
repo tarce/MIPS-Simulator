@@ -2,3 +2,4 @@
 output.txt
 .gitignore~
 test_fibonacci.bin
+project_spec/
