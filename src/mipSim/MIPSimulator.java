@@ -44,7 +44,7 @@ public class MIPSimulator {
 			//TODO: add intervals
 			break;
 		default:
-			System.out.println("Usage:  java MIPSimulator <inputfilename> <outputfilename> <operation> [Tm:n]");
+			System.out.println("Usage:  java MIPSimulator <inputfilename> <outputfilename> <operation> [-Tm:n]");
 			System.exit(1);
 		}
 		
@@ -59,12 +59,13 @@ public class MIPSimulator {
 			MIPSimulator.simulate();
 			break;
 		default:
-			Log.add("Should never reach.  Problem in mode switching in main.");
+			Log.add("Problem in mode switching in main program.");
 		}
 	}
 
 	private static void simulate() {
 		System.out.println("Starting simulator...");
+		System.out.println("Simulation complete.");
 	}
 
 	private static void disassemble() {

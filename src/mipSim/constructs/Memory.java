@@ -16,10 +16,10 @@ import mipSim.instructions.Instruction.InstException;
 
 public class Memory {
 	
-	private int PC;								//the program counter
-	private static byte[] BYTE_INPUT;			//byte array of input file
-	private ArrayList <Instruction> CONTENTS;	//instruction contents of memory
-	private ArrayList<Data> DATA;			//data contents of memory
+	private int PC;									//the program counter
+	private static byte[] BYTE_INPUT;				//byte array of input file
+	private ArrayList <Instruction> INSTRUCTIONS;	//instruction contents of memory
+	private ArrayList <Data> DATA;					//data contents of memory
 	
 	private int INST_START_ADDRS;
 	private int DATA_START_ADDRS;
@@ -27,14 +27,25 @@ public class Memory {
 	public Memory (int pc) {
 		PC= pc;
 		INST_START_ADDRS = pc;
-		CONTENTS = new ArrayList <Instruction> ();
+		INSTRUCTIONS = new ArrayList <Instruction> ();
 		DATA = new ArrayList <Data> ();
 	}
 	
+	/**
+	 * Returns the current program counter.
+	 * 
+	 * @return
+	 */
 	public int getPC() {
 		return PC;
 	}
 	
+	/**
+	 * Reads in a file (given by fileName) into memory, creating the instructions and data
+	 * in the process.
+	 * 
+	 * @param fileName
+	 */
 	public void read (String fileName) {
 		
 		File file = new File(fileName);
@@ -44,12 +55,18 @@ public class Memory {
 	
 	}
 	
+	/**
+	 * Writes out a file (given by fileName) 
+	 * @param fileName
+	 * @throws FileNotFoundException
+	 */
 	public void write (String fileName) throws FileNotFoundException {
 		PrintWriter out = new PrintWriter(fileName); 
 
 		int j = 0;
-        int curAddrs = INST_START_ADDRS + (j * 4);
-		for (Instruction i: CONTENTS){
+        int curAddrs = INST_START_ADDRS;
+        
+		for (Instruction i: INSTRUCTIONS){
             String instruction = i.toString();
             String binary_inst = i.BINARY_STRING;
             out.write(binary_inst + " " + curAddrs + " " + instruction + "\n");            
@@ -71,8 +88,9 @@ public class Memory {
 	public void print () {
 		
 		int j = 0;
-        int curAddrs = INST_START_ADDRS + (j * 4);
-		for (Instruction i: CONTENTS){
+        int curAddrs = INST_START_ADDRS;
+        
+		for (Instruction i: INSTRUCTIONS){
             String instruction = i.toString();
             String binary_inst = i.BINARY_STRING;
             System.out.println(binary_inst + " " + curAddrs + " " + instruction);            
@@ -90,6 +108,9 @@ public class Memory {
 		
 	}
 	
+	/**
+	 * Creates the data and instruction lists.
+	 */
 	private void createContents() {
 		
 		int byteCount = 0;
@@ -104,7 +125,7 @@ public class Memory {
 			} catch (InstException e) {
 				Log.add(e); //TODO: does this work?
 			}
-			CONTENTS.add(inst);
+			INSTRUCTIONS.add(inst);
 			if (inst.TYPE == BREAK) {
 				stop = true;
 			}

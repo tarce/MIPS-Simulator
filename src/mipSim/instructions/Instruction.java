@@ -226,6 +226,9 @@ public class Instruction {
 		
 		switch (opcode) {
 		case "000000":		
+			
+			if (BINARY_STRING.equals("00000000000000000000000000000000")) {result = Type.NOP; break;}
+			
 			String function = BINARY_STRING.substring(26, 32);
 	
 			switch (function) {			
@@ -282,12 +285,7 @@ public class Instruction {
 		case "001010":		result = Type.SLTI;	break;
 		case "101011":		result = Type.SW;	break;
 		default:
-			if (BINARY_STRING.equals("00000000000000000000000000000000")) {
-							result = Type.NOP;
-			}
-			else { throw new InstException(opcode); }
-			
-			break;
+			throw new InstException(opcode);
 		}
 		return result;
 	}
