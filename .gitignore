@@ -4,3 +4,4 @@ output.txt
 test_fibonacci.bin
 project_spec/
 .project
+.classpath
