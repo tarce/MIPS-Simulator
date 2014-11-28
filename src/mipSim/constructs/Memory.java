@@ -10,16 +10,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import mipSim.instructions.Data;
 import mipSim.instructions.Instruction;
 import mipSim.instructions.Instruction.InstException;
 
 public class Memory {
 	
-	private int PC;									//the program counter
+	public int PC;									//the program counter
 	private static byte[] BYTE_INPUT;				//byte array of input file
 	private ArrayList <Instruction> INSTRUCTIONS;	//instruction contents of memory
 	private ArrayList <Data> DATA;					//data contents of memory
+	private Map <Integer, Instruction> INSTRUCTIONS_MAP;
+	private Map <Integer, Data> DATA_MAP;
 	
 	private int INST_START_ADDRS;
 	private int DATA_START_ADDRS;
@@ -29,15 +34,58 @@ public class Memory {
 		INST_START_ADDRS = pc;
 		INSTRUCTIONS = new ArrayList <Instruction> ();
 		DATA = new ArrayList <Data> ();
+		INSTRUCTIONS_MAP = new HashMap <Integer, Instruction> ();
+		DATA_MAP = new HashMap <Integer, Data> ();
+	}
+	
+//	/**
+//	 * Returns the current program counter.
+//	 * 
+//	 * @return
+//	 */
+//	public int getPC() {
+//		return PC;
+//	}
+//	
+//	/**
+//	 * Sets the program counter.
+//	 * 
+//	 * @param pc
+//	 */
+//	public void setPC(int pc) {
+//		PC = pc;
+//	}
+	
+	/**
+	 * Returns the instruction in memory at the given program counter.
+	 * 
+	 * @param pc
+	 * @return
+	 */
+	public Instruction fetchInst (int pc) {
+		if (pc < DATA_START_ADDRS && pc >= INST_START_ADDRS) {
+			return INSTRUCTIONS_MAP.get(pc);
+		}
+		else {
+			Log.add("Instruction memory access out of bounds");
+			return null;
+		}
 	}
 	
 	/**
-	 * Returns the current program counter.
+	 * Returns the data in memory at the given program counter.
 	 * 
+	 * @param pc
 	 * @return
 	 */
-	public int getPC() {
-		return PC;
+	public Data fetchData (int pc) {
+		if (pc >= DATA_START_ADDRS) {
+			return DATA_MAP.get(pc);
+		}
+		else {
+			Log.add("Data memory access out of bounds");
+			return null;
+		}
 	}
 	
 	/**
@@ -57,6 +105,7 @@ public class Memory {
 	
 	/**
 	 * Writes out a file (given by fileName) 
+	 * 
 	 * @param fileName
 	 * @throws FileNotFoundException
 	 */
@@ -69,7 +118,7 @@ public class Memory {
 		for (Instruction i: INSTRUCTIONS){
             String instruction = i.toString();
             String binary_inst = i.BINARY_STRING;
-            out.write(binary_inst + " " + curAddrs + " " + instruction + "\n");            
+            out.write(binary_inst + " " + curAddrs + " " + instruction + "\n");  
             j++;
             curAddrs = INST_START_ADDRS + (j * 4);
 		}
@@ -84,7 +133,10 @@ public class Memory {
 
 		out.close();
 	}
-	
+
+	/**
+	 * Prints the contents of memory.
+	 */
 	public void print () {
 		
 		int j = 0;
@@ -105,7 +157,6 @@ public class Memory {
 			j++;
 			curAddrs = INST_START_ADDRS + (j * 4);
 		}
-		
 	}
 	
 	/**
@@ -126,18 +177,20 @@ public class Memory {
 				Log.add(e); //TODO: does this work?
 			}
 			INSTRUCTIONS.add(inst);
+			INSTRUCTIONS_MAP.put(startAddrs, inst);
 			if (inst.TYPE == BREAK) {
 				stop = true;
 			}
 			byteCount += 4;
 			startAddrs += 4;
 		}
-		
+
 		DATA_START_ADDRS = startAddrs;
 
 		while (byteCount < BYTE_INPUT.length) {
 			Data data = new Data (byteCount, BYTE_INPUT);
 			DATA.add(data);
+			DATA_MAP.put(startAddrs, data);
 			byteCount += 4;
 			startAddrs += 4;
 		}

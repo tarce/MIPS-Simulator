@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 
 import mipSim.constructs.Log;
 import mipSim.constructs.Memory;
+import mipSim.instructions.*;
+import mipSim.pipeline.units.*;;
 
 public class MIPSimulator {
 	
@@ -14,6 +16,7 @@ public class MIPSimulator {
 	private static String MODE;
 	
 	private static Memory MAIN_MEMORY;
+	private static InstQueue IQ;
 	
 	/**
 	 * Entry point of simulator.
@@ -64,7 +67,23 @@ public class MIPSimulator {
 	}
 
 	private static void simulate() {
+		
 		System.out.println("Starting simulator...");
+		
+		IQ = new InstQueue();
+		
+		instFetch();
+		IQ.sync();
+		
+		IQ.printContents();
+		
+		MAIN_MEMORY.PC = 640;
+				
+		instFetch();
+		IQ.sync();
+		
+		IQ.printContents();
+		
 		System.out.println("Simulation complete.");
 	}
 
@@ -76,6 +95,19 @@ public class MIPSimulator {
 			Log.add(e);
 		}
 		System.out.println("Disassembly complete.");
+	}
+	
+	/**
+	 * Represents instruction fetch stage.
+	 */
+	public static void instFetch() {
+		Instruction i = MAIN_MEMORY.fetchInst(MAIN_MEMORY.PC);
+		
+		if (i == null) {
+			return;
+		}
+		
+		IQ.putToken(i);
 	}
 	
 }
