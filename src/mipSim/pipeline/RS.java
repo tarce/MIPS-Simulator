@@ -44,21 +44,11 @@ public class RS {
 	 * @param i		The instruction
 	 * @return		True if successfully put
 	 */
-	public void put (Instruction i, int pos, Registers reg, RegStatus reg_stat, int rob_id) {
+	public void update (int pos, Instruction.Type op, Integer vj, Integer vk, Integer qj, Integer qk, int rob_id, Integer a) {
 
 		temporary[pos].clear();
-		
-		switch (i.TYPE) {
-		
-		case ADD:
-			if (!reg_stat.isBusy(i.RS)){
-				
-			}
-			
-
-		default:
-			//TODO:
-		}
+		temporary[pos].updateEntry(op, vj, vk, qj, qk, rob_id, a);
+	
 	}
 	
 	/**
@@ -74,13 +64,13 @@ public class RS {
 	}
 	
 	/**
-	 * Prints the contents of the RegisterFile
+	 * Prints the contents of the Reservation Station
 	 */
 	public void printContents() {
 		
 //		Collections.sort(finalized);
 		
-		System.out.print("Resevation Station:");
+		System.out.println("Resevation Station:");
 		
 		int i = 0;
 		for (; i < finalized.length - 1; i++) {

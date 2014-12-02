@@ -1,9 +1,11 @@
 package mipSim.pipeline.parts;
 
+import mipSim.instructions.Instruction;
+
 public class RS_Entry {
 	
 	private boolean BUSY;
-	private String OP;
+	private Instruction.Type OP;
 	private Integer Vj;
 	private Integer Vk;
 	private Integer Qj;
@@ -37,11 +39,18 @@ public class RS_Entry {
 		return BUSY;
 	}
 	
-	public void setOP (String op) {
+	public void updateEntry (Instruction.Type op, Integer vj, Integer vk, Integer qj, Integer qk, int rob_id, Integer a) {
+		BUSY = true;
 		OP = op;
+		Vj = vj;
+		Vk = vk;
+		Qj = qj;
+		Qk = qk;
+		ROB_ID = rob_id;
+		A = a;
 	}
 	
-	public String getOP () {
+	public Instruction.Type getOP () {
 		return OP;
 	}
 	

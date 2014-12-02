@@ -10,7 +10,9 @@ public class MIPSimulator {
 	
 	private static int RS_SIZE = 8;
 	private static int REG_SIZE = 32;
+	private static int ROB_SIZE = 6;
 	private static int PC_START = 584;
+
 	
 	private static int START;
 	private static int END;
@@ -21,6 +23,9 @@ public class MIPSimulator {
 	private static Memory MAIN_MEMORY;
 	private static InstQueue IQ;
 	private static RS RS;
+	private static RegStatus REG_STAT;
+	private static Registers REG;
+	private static ROB ROB;
 	
 	/**
 	 * Entry point of simulator.
@@ -76,9 +81,12 @@ public class MIPSimulator {
 		
 		IQ = new InstQueue();
 		RS = new RS(RS_SIZE);
+		REG_STAT = new RegStatus(REG_SIZE);
+		REG = new Registers(REG_SIZE);
+		ROB = new ROB(ROB_SIZE);
 		
 		fetch();
-		decode();
+		issue();
 		IQ.sync();
 		
 		IQ.printContents();
@@ -86,7 +94,7 @@ public class MIPSimulator {
 		MAIN_MEMORY.PC = 640;
 				
 		fetch();
-		decode();
+		issue();
 		IQ.sync();
 		
 		IQ.printContents();
@@ -113,14 +121,74 @@ public class MIPSimulator {
 		IQ.putToken(i);
 	}
 	
-	public static void decode() {
+	public static void issue() {
 		Instruction i = IQ.getTop();
 		
 		int rs_pos = RS.getFreeSlot();
-//		int rob_pos = ROB.getFreeSlot();
+		int rob_pos = ROB.getFreeSlot();
 		
-		if (rs_pos == -1 /*|| rob_pos == -1*/) {
+		if (rs_pos == -1 || rob_pos == -1) {
 			return;
+		}
+		
+		Integer qj;		//associated w/ RS
+		Integer qk;		//assciated w/ RT
+		Integer vj;
+		Integer vk;
+		Integer a;
+		
+		switch (i.TYPE) {
+		
+		case SUB:
+		case SUBU:
+		case ADDU:
+		case AND:
+		case OR:
+		case NOR:
+		case XOR:
+		case SLT:
+		case SLTU:
+		case ADD:
+	
+			if (REG_STAT.isBusy(i.RS)){
+				int rob_id = REG_STAT.getROB_ID(i.RS);
+				Integer rob_answer = ROB.getValue(rob_id);
+				if (rob_answer == null) {
+					qj = rob_id;
+					vj = null;
+				}
+				else {
+					qj = null;
+					vj = rob_answer;
+				}
+			}
+			else {
+				qj = null;
+				vj = REG.get(i.RS);
+			}
+			if (REG_STAT.isBusy(i.RT)){
+				int rob_id = REG_STAT.getROB_ID(i.RT);
+				Integer rob_answer = ROB.getValue(rob_id);
+				if (rob_answer == null) {
+					qk = rob_id;
+					vk = null;
+				}
+				else {
+					qk = null;
+					vk = rob_answer;
+				}
+			}
+			else {
+				qk = null;
+				vk = REG.get(i.RT);
+			}
+			
+			a = null;
+			
+			RS.update(rs_pos, i.TYPE, vj, vk, qj, qk, rob_pos, a);
+		
+		default:
+			//TODO:
 		}
 		
 		IQ.removeTop();
