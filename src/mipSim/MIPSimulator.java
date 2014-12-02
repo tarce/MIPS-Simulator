@@ -3,11 +3,14 @@ package mipSim;
 import java.io.FileNotFoundException;
 
 import mipSim.constructs.Log;
-import mipSim.constructs.Memory;
 import mipSim.instructions.*;
-import mipSim.pipeline.units.*;;
+import mipSim.pipeline.*;
 
 public class MIPSimulator {
+	
+	private static int RS_SIZE = 8;
+	private static int REG_SIZE = 32;
+	private static int PC_START = 584;
 	
 	private static int START;
 	private static int END;
@@ -17,6 +20,7 @@ public class MIPSimulator {
 	
 	private static Memory MAIN_MEMORY;
 	private static InstQueue IQ;
+	private static RS RS;
 	
 	/**
 	 * Entry point of simulator.
@@ -51,7 +55,7 @@ public class MIPSimulator {
 			System.exit(1);
 		}
 		
-		MAIN_MEMORY = new Memory(584);	//initialize PC to 584 as per requirements
+		MAIN_MEMORY = new Memory(PC_START);
 		MAIN_MEMORY.read(INPUT_FILE);			
 		
 		switch (MODE) {
@@ -71,15 +75,18 @@ public class MIPSimulator {
 		System.out.println("Starting simulator...");
 		
 		IQ = new InstQueue();
+		RS = new RS(RS_SIZE);
 		
-		instFetch();
+		fetch();
+		decode();
 		IQ.sync();
 		
 		IQ.printContents();
 		
 		MAIN_MEMORY.PC = 640;
 				
-		instFetch();
+		fetch();
+		decode();
 		IQ.sync();
 		
 		IQ.printContents();
@@ -100,14 +107,24 @@ public class MIPSimulator {
 	/**
 	 * Represents instruction fetch stage.
 	 */
-	public static void instFetch() {
-		Instruction i = MAIN_MEMORY.fetchInst(MAIN_MEMORY.PC);
+	public static void fetch() {
+		Instruction i = MAIN_MEMORY.fetchInst(MAIN_MEMORY.PC);	
+		if (i == null) { return; }	
+		IQ.putToken(i);
+	}
+	
+	public static void decode() {
+		Instruction i = IQ.getTop();
 		
-		if (i == null) {
+		int rs_pos = RS.getFreeSlot();
+//		int rob_pos = ROB.getFreeSlot();
+		
+		if (rs_pos == -1 /*|| rob_pos == -1*/) {
 			return;
 		}
 		
-		IQ.putToken(i);
+		IQ.removeTop();
+		
 	}
 	
 }

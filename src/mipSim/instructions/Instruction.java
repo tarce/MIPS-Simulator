@@ -5,12 +5,12 @@ public class Instruction {
 	public String BINARY_STRING;
 	public Type TYPE;
 	
-	private int IMMEDIATE;
-	private int RT;
-	private int RS;
-	private int RD;
-	private int SA;
-	private int TARGET;
+	public int IMMEDIATE;
+	public int RT;
+	public int RS;
+	public int RD;
+	public int SA;
+	public int TARGET;
 	
 	/**
 	 * Types of various mipSim.instructions covered in the MIPSimulator
