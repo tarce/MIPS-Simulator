@@ -1,4 +1,4 @@
-package mipSim.pipeline.units;
+package mipSim.pipeline;
 
 import mipSim.instructions.*;
 

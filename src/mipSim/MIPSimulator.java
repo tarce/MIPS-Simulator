@@ -3,9 +3,16 @@ package mipSim;
 import java.io.FileNotFoundException;
 
 import mipSim.constructs.Log;
-import mipSim.constructs.Memory;
+import mipSim.instructions.*;
+import mipSim.pipeline.*;
 
 public class MIPSimulator {
+	
+	private static int RS_SIZE = 8;
+	private static int REG_SIZE = 32;
+	private static int ROB_SIZE = 6;
+	private static int PC_START = 584;
+
 	
 	private static int START;
 	private static int END;
@@ -14,6 +21,11 @@ public class MIPSimulator {
 	private static String MODE;
 	
 	private static Memory MAIN_MEMORY;
+	private static InstQueue IQ;
+	private static RS RS;
+	private static RegStatus REG_STAT;
+	private static Registers REG;
+	private static ROB ROB;
 	
 	/**
 	 * Entry point of simulator.
@@ -44,11 +56,11 @@ public class MIPSimulator {
 			//TODO: add intervals
 			break;
 		default:
-			System.out.println("Usage:  java MIPSimulator <inputfilename> <outputfilename> <operation> [Tm:n]");
+			System.out.println("Usage:  java MIPSimulator <inputfilename> <outputfilename> <operation> [-Tm:n]");
 			System.exit(1);
 		}
 		
-		MAIN_MEMORY = new Memory(584);	//initialize PC to 584 as per requirements
+		MAIN_MEMORY = new Memory(PC_START);
 		MAIN_MEMORY.read(INPUT_FILE);			
 		
 		switch (MODE) {
@@ -59,12 +71,35 @@ public class MIPSimulator {
 			MIPSimulator.simulate();
 			break;
 		default:
-			Log.add("Should never reach.  Problem in mode switching in main.");
+			Log.add("Problem in mode switching in main program.");
 		}
 	}
 
 	private static void simulate() {
+		
 		System.out.println("Starting simulator...");
+		
+		IQ = new InstQueue();
+		RS = new RS(RS_SIZE);
+		REG_STAT = new RegStatus(REG_SIZE);
+		REG = new Registers(REG_SIZE);
+		ROB = new ROB(ROB_SIZE);
+		
+		fetch();
+		issue();
+		IQ.sync();
+		
+		IQ.printContents();
+		
+		MAIN_MEMORY.PC = 640;
+				
+		fetch();
+		issue();
+		IQ.sync();
+		
+		IQ.printContents();
+		
+		System.out.println("Simulation complete.");
 	}
 
 	private static void disassemble() {
@@ -75,6 +110,89 @@ public class MIPSimulator {
 			Log.add(e);
 		}
 		System.out.println("Disassembly complete.");
+	}
+	
+	/**
+	 * Represents instruction fetch stage.
+	 */
+	public static void fetch() {
+		Instruction i = MAIN_MEMORY.fetchInst(MAIN_MEMORY.PC);	
+		if (i == null) { return; }	
+		IQ.putToken(i);
+	}
+	
+	public static void issue() {
+		Instruction i = IQ.getTop();
+		
+		int rs_pos = RS.getFreeSlot();
+		int rob_pos = ROB.getFreeSlot();
+		
+		if (rs_pos == -1 || rob_pos == -1) {
+			return;
+		}
+		
+		Integer qj;		//associated w/ RS
+		Integer qk;		//assciated w/ RT
+		Integer vj;
+		Integer vk;
+		Integer a;
+		
+		switch (i.TYPE) {
+		
+		case SUB:
+		case SUBU:
+		case ADDU:
+		case AND:
+		case OR:
+		case NOR:
+		case XOR:
+		case SLT:
+		case SLTU:
+		case ADD:
+	
+			if (REG_STAT.isBusy(i.RS)){
+				int rob_id = REG_STAT.getROB_ID(i.RS);
+				Integer rob_answer = ROB.getValue(rob_id);
+				if (rob_answer == null) {
+					qj = rob_id;
+					vj = null;
+				}
+				else {
+					qj = null;
+					vj = rob_answer;
+				}
+			}
+			else {
+				qj = null;
+				vj = REG.get(i.RS);
+			}
+			if (REG_STAT.isBusy(i.RT)){
+				int rob_id = REG_STAT.getROB_ID(i.RT);
+				Integer rob_answer = ROB.getValue(rob_id);
+				if (rob_answer == null) {
+					qk = rob_id;
+					vk = null;
+				}
+				else {
+					qk = null;
+					vk = rob_answer;
+				}
+			}
+			else {
+				qk = null;
+				vk = REG.get(i.RT);
+			}
+			
+			a = null;
+			
+			RS.update(rs_pos, i.TYPE, vj, vk, qj, qk, rob_pos, a);
+		
+		default:
+			//TODO:
+		}
+		
+		IQ.removeTop();
+		
 	}
 	
 }

@@ -18,8 +18,6 @@ public class Data {
 		return BINARY_STRING + " " + VALUE;
 	}
 	
-
-
 	/**
 	 * Creates a string representation of the binary form of the data.
 	 * The string can be accessed under BINARY_STRING.

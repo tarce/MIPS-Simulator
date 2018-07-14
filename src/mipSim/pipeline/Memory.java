@@ -1,4 +1,4 @@
-package mipSim.constructs;
+package mipSim.pipeline;
 
 import static mipSim.instructions.Instruction.Type.*;
 
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import mipSim.constructs.Log;
 import mipSim.instructions.Data;
 import mipSim.instructions.Instruction;
 import mipSim.instructions.Instruction.InstException;

@@ -5,12 +5,12 @@ public class Instruction {
 	public String BINARY_STRING;
 	public Type TYPE;
 	
-	private int IMMEDIATE;
-	private int RT;
-	private int RS;
-	private int RD;
-	private int SA;
-	private int TARGET;
+	public int IMMEDIATE;
+	public int RT;
+	public int RS;
+	public int RD;
+	public int SA;
+	public int TARGET;
 	
 	/**
 	 * Types of various mipSim.instructions covered in the MIPSimulator
@@ -94,56 +94,38 @@ public class Instruction {
 		switch (TYPE) {
 		
 		case ADDI:
+		case ADDIU:							
+		case SLTI:
 			result = TYPE.toString() + " R" + RT + ", R" + RS + ", #" + IMMEDIATE; break;
-		case SW:
-			result = TYPE.toString() + " R" + RT + ", " + IMMEDIATE + "(R" + RS + ")"; break;					
+		case SW:				
 		case LW:
 			result = TYPE.toString() + " R" + RT + ", " + IMMEDIATE + "(R" + RS + ")"; break;
-		case BEQ:								
+		case BEQ:
+		case BNE:
 			result = TYPE.toString() + " R" + RS + ", R" + RT + ", #" + IMMEDIATE; break;	
 		case BREAK:					
 			result = "BREAK"; break;
 		case J:							
 			result = TYPE.toString() + " #" + TARGET; break;
-		case ADD:										
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case BGEZ:		
-			result = TYPE.toString() + " R" + RS + ", #" + IMMEDIATE; break;
-		case BGTZ:										
-			result = TYPE.toString() + " R" + RS + ", #" + IMMEDIATE; break;								
-		case BNE:
-			result = TYPE.toString() + " R" + RS + ", R" + RT + ", #" + IMMEDIATE; break;
+		case BGTZ:
 		case BLEZ:
-			result = TYPE.toString() + " R" + RS + ", #" + IMMEDIATE; break;	
 		case BLTZ:
-			result = TYPE.toString() + " R" + RS + ", #" + IMMEDIATE; break;					
-		case ADDIU:
-			result = TYPE.toString() + " R" + RT + ", R" + RS + ", #" + IMMEDIATE; break;								
-		case SLTI:
-			result = TYPE.toString() + " R" + RT + ", R" + RS + ", #" + IMMEDIATE; break;
-		case SLT:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
-		case SLTU:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
+			result = TYPE.toString() + " R" + RS + ", #" + IMMEDIATE; break;								
 		case SLL:									
-			result = TYPE.toString() + " R" + RD + ", R" + RT + ", #" + SA; break;
 		case SRL:
-			result = TYPE.toString() + " R" + RD + ", R" + RT + ", #" + SA; break;
 		case SRA:
 			result = TYPE.toString() + " R" + RD + ", R" + RT + ", #" + SA; break;
 		case SUB:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case SUBU:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case ADDU:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case AND:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case OR:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case NOR:
-			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case XOR:
+		case SLT:
+		case SLTU:
+		case ADD:										
 			result = TYPE.toString() + " R" + RD + ", R" + RS + ", R" + RT; break;
 		case NOP:
 			result = TYPE.toString(); break;
@@ -226,6 +208,9 @@ public class Instruction {
 		
 		switch (opcode) {
 		case "000000":		
+			
+			if (BINARY_STRING.equals("00000000000000000000000000000000")) {result = Type.NOP; break;}
+			
 			String function = BINARY_STRING.substring(26, 32);
 	
 			switch (function) {			
@@ -282,12 +267,7 @@ public class Instruction {
 		case "001010":		result = Type.SLTI;	break;
 		case "101011":		result = Type.SW;	break;
 		default:
-			if (BINARY_STRING.equals("00000000000000000000000000000000")) {
-							result = Type.NOP;
-			}
-			else { throw new InstException(opcode); }
-			
-			break;
+			throw new InstException(opcode);
 		}
 		return result;
 	}
