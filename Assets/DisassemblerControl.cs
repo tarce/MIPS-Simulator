@@ -5,6 +5,8 @@ namespace MIPS
     using System.Collections.Generic;
     using UnityEngine;
     using System.IO;
+    using System;
+    using System.Text;
 
     public class DisassemblerControl : MonoBehaviour
     {
@@ -47,31 +49,28 @@ namespace MIPS
         /// <param name="word"></param>
         private static void disassemble(byte[] word)
         {
+            Debug.Log("Dissasembling");
             if (word.Length < 4)
             {
                 Debug.Log("Error: byte[].length < 32 bits");
                 return;
             }
-
-            BitArray bitWord = new BitArray(word);
-            Debug.Log(BitArrayToStr(bitWord));
+            BitArray bitArrWord = new BitArray(word);
+            Debug.Log(wordToStr(word));
         }
 
-        private static string BitArrayToStr(BitArray ba)
+        private static string wordToStr(byte[] word)
         {
-            byte[] strArr = new byte[ba.Length / 8];
-
-            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-
-            for (int i = 0; i < ba.Length / 8; i++)
+            if (word.Length < 4)
             {
-                for (int index = i * 8, m = 1; index < i * 8 + 8; index++, m *= 2)
-                {
-                    strArr[i] += ba.Get(index) ? (byte)m : (byte)0;
-                }
+                Debug.Log("Error: byte[].length < 32 bits");
+                return "";
             }
-
-            return encoding.GetString(strArr);
+            string bitString = Convert.ToString(word[0], 2).PadLeft(8, '0') +
+                Convert.ToString(word[1], 2).PadLeft(8, '0') +
+                Convert.ToString(word[2], 2).PadLeft(8, '0') +
+                Convert.ToString(word[3], 2).PadLeft(8, '0') ;
+            return bitString;
         }
     }
 }
