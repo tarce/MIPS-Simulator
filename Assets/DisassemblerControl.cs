@@ -6,7 +6,6 @@ namespace MIPS
     using UnityEngine;
     using System.IO;
     using System;
-    using System.Text;
 
     public class DisassemblerControl : MonoBehaviour
     {
@@ -38,12 +37,23 @@ namespace MIPS
             Stream ms = new MemoryStream(binaryFile);
             using (BinaryReader br = new BinaryReader(ms))
             {
-                while (br.BaseStream.Position != br.BaseStream.Length)
+                bool readError = false;
+                while (br.BaseStream.Position != br.BaseStream.Length &&
+                    !readError)
                 {
                     // Read the source file into a byte array, 
                     // 32 bits at a time (4 bytes = 1 word)
                     byte[] word = br.ReadBytes(4);
-                    disassemble(word);
+
+                    if (word.Length < 4)
+                    {
+                        Debug.Log("Error: byte[].length < 32 bits");
+                        readError = true;
+                    }
+                    else
+                    {
+                        disassemble(word);
+                    }
                 }
                 br.Close();
             }
@@ -55,59 +65,75 @@ namespace MIPS
         /// <param name="word"></param>
         private static void disassemble(byte[] word)
         {
-            if (word.Length < 4)
+            BitArray _word = createBitArr(word);
+            _binary.Add(toString(_word));
+            parse(_word);
+        }
+
+
+
+        private static void parse(BitArray word)
+        {
+            BitArray opcodeMask = new BitArray(6, true);
+            BitArray opcode = new BitArray(6);
+            for (int idx = 0; idx <= 5; idx++)
             {
-                Debug.Log("Error: byte[].length < 32 bits");
-                return;
+                opcode[5 - idx] = word[idx];
             }
-            _binary.Add(wordToStr(word));
-            parse(word);
+            Debug.Log(getIntFromBitArray(opcode.And(opcodeMask)));
         }
 
         /// <summary>
-        /// The word2Str method converts a byte array to its string representation.
+        /// Creates and returns a BitArray with the correct Endianess
         /// </summary>
-        /// <param name="word">A byte[] of lenth 4 (4 bytes = word)</param>
-        /// <returns>Returns a string representing the binary of the 32 bit word.</returns>
-        private static string wordToStr(byte[] word)
+        /// <param name="word">The byte array to be made into a BitArray</param>
+        /// <returns>A bit array with proper endianess</returns>
+        /// <remarks>This is a file specific call.</remarks>
+        private static BitArray createBitArr(byte[] word)
         {
-            if (word.Length < 4)
+            BitArray _tempBitArr = new BitArray(word);
+            bool[] _tempBool = new bool[_tempBitArr.Count];
+
+            for (int byteNum = 1; byteNum <= word.Length * 8; byteNum += 8)
+                for (int idx = 0; idx <= 7; idx++)
+                    _tempBool[idx + byteNum - 1] = _tempBitArr[(7 - idx) + byteNum - 1];
+
+            return new BitArray(_tempBool);
+        }
+
+
+        /// <summary>
+        /// Converts a BitArray to its bit string representation.
+        /// </summary>
+        /// <param name="bitArr">The BitArray to be converted</param>
+        /// <returns>Returns a string representing the BitArray.</returns>
+        private static string toString(BitArray bitArr)
+        {
+            string bitString = "";
+            foreach (bool bit in bitArr)
             {
-                Debug.Log("Error: byte[].length < 32 bits");
-                return "";
+                bitString += (bit) ? "1" : "0";
             }
-            string bitString = Convert.ToString(word[0], 2).PadLeft(8, '0') +
-                Convert.ToString(word[1], 2).PadLeft(8, '0') +
-                Convert.ToString(word[2], 2).PadLeft(8, '0') +
-                Convert.ToString(word[3], 2).PadLeft(8, '0') ;
             return bitString;
         }
-
-        private static void parse(byte[] word)
+        
+        /// <summary>
+        /// Converts a byte array to its bit string representation.
+        /// </summary>
+        /// <param name="byteArr">The byte array to be converted</param>
+        /// <returns>Returns a string representing the byte array.</returns>
+        private static string toString(byte[] byteArr)
         {
-            BitArray bitArrWord = new BitArray(word);
-            BitArray opcodeMask = new BitArray(32);
-            for (int bit = 0; bit < 6; bit++)
+            string bitString = "";
+            for (int idx = 0; idx < byteArr.Length; idx++)
             {
-                opcodeMask[bit] = true;
+                bitString += Convert.ToString(byteArr[idx], 2).PadLeft(8, '0');
             }
-
-            Debug.Log(toString(opcodeMask));
-        }
-
-        public static string toString(BitArray bitArray)
-        {
-            string values = "";
-            foreach (bool bit in bitArray)
-            {
-                values += (bit == true) ? "1" : "0";
-            }
-            return values;
+            return bitString;
         }
 
         private static int getIntFromBitArray(BitArray bitArray)
         {
-
             if (bitArray.Length > 32)
                 throw new ArgumentException("Argument length shall be at most 32 bits.");
 
