@@ -22,7 +22,7 @@ namespace MIPS
         private static List<string> _binary;
         private static List<string> _instructions;
         private static IDictionary<int, string> opcodes;
-        
+        private static IDictionary<int, string> fcodes;
 
 
         static Disassembler()
@@ -30,9 +30,10 @@ namespace MIPS
             _binary = new List<string>();
             _instructions = new List<string>();
             initOpcodes();
+            initFcodes();
         }
 
-        private static initOpcodes()
+        private static void initOpcodes()
         {
             opcodes = new Dictionary<int, string>();
             opcodes.Add(0, "rtyp");
@@ -53,6 +54,33 @@ namespace MIPS
             opcodes.Add(35, "lw");
             opcodes.Add(40, "sb");
             opcodes.Add(43, "sw");
+        }
+
+        private static void initFcodes()
+        {
+            fcodes.Add(0, "sll");
+            fcodes.Add(2, "slr");
+            fcodes.Add(3, "sra");
+            fcodes.Add(4, "sllv");
+            fcodes.Add(6, "srlv");
+            fcodes.Add(7, "srav");
+            fcodes.Add(8, "jr");
+            fcodes.Add(9, "jalr");
+            fcodes.Add(12, "syscall");
+            fcodes.Add(13, "break");
+            fcodes.Add(16, "mfhi");
+            fcodes.Add(17, "mtlo");
+            fcodes.Add(18, "mflo");
+            fcodes.Add(19, "mtlo");
+            fcodes.Add(24, "mult");
+            fcodes.Add(26, "div");
+            fcodes.Add(32, "add");
+            fcodes.Add(34, "sub");
+            fcodes.Add(36, "and");
+            fcodes.Add(37, "or");
+            fcodes.Add(38, "xor");
+            fcodes.Add(39, "nor");
+            fcodes.Add(42, "slt");
         }
 
         /// <summary>
@@ -103,15 +131,30 @@ namespace MIPS
         {
             int opcode = getOpcode(word);
 
-            if (!opcodes.ContainsKey())
+            if (!opcodes.ContainsKey(opcode))
+            {
+                Debug.Log("Opcode not found.");
+            }
+            else if (opcode == 0) // R-Instr
+            {
+            }
+            else if (opcode == 1)
+            {
+            }
+            else if (opcode == 2 || opcode == 3) // J-Instr
+            {
+            }
+            else if (opcode == 15)
+            {
 
+            }
+            else if (opcode == 32 || opcode == 35 || opcode == 40 || opcode == 43)
+            {
+            }
+            else
+            {
 
-    if opcode not in opcodes:
-            return "error"
-
-    elif(opcode == 0): # Rtype instruction
-
-            Debug.Log(getIntFromBitArray(opcode.And(opcodeMask)));
+            }
         }
 
         private static int getOpcode(BitArray word)
