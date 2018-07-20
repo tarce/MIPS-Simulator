@@ -21,11 +21,38 @@ namespace MIPS
     {
         private static List<string> _binary;
         private static List<string> _instructions;
+        private static IDictionary<int, string> opcodes;
+        
+
 
         static Disassembler()
         {
             _binary = new List<string>();
             _instructions = new List<string>();
+            initOpcodes();
+        }
+
+        private static initOpcodes()
+        {
+            opcodes = new Dictionary<int, string>();
+            opcodes.Add(0, "rtyp");
+            opcodes.Add(1, "branch");
+            opcodes.Add(2, "j");
+            opcodes.Add(3, "jal");
+            opcodes.Add(4, "beq");
+            opcodes.Add(5, "bne");
+            opcodes.Add(6, "blez");
+            opcodes.Add(7, "bgtz");
+            opcodes.Add(8, "addi");
+            opcodes.Add(10, "slti");
+            opcodes.Add(12, "andi");
+            opcodes.Add(13, "ori");
+            opcodes.Add(14, "xori");
+            opcodes.Add(15, "lui");
+            opcodes.Add(32, "lb");
+            opcodes.Add(35, "lw");
+            opcodes.Add(40, "sb");
+            opcodes.Add(43, "sw");
         }
 
         /// <summary>
@@ -74,13 +101,33 @@ namespace MIPS
 
         private static void parse(BitArray word)
         {
+            int opcode = getOpcode(word);
+
+            if (!opcodes.ContainsKey())
+
+
+    if opcode not in opcodes:
+            return "error"
+
+    elif(opcode == 0): # Rtype instruction
+
+            Debug.Log(getIntFromBitArray(opcode.And(opcodeMask)));
+        }
+
+        private static int getOpcode(BitArray word)
+        {
+            int opcode = -1;
+
             BitArray opcodeMask = new BitArray(6, true);
-            BitArray opcode = new BitArray(6);
+            BitArray opcodeBits = new BitArray(6);
             for (int idx = 0; idx <= 5; idx++)
             {
-                opcode[5 - idx] = word[idx];
+                opcodeBits[5 - idx] = word[idx];
             }
-            Debug.Log(getIntFromBitArray(opcode.And(opcodeMask)));
+
+            opcode = getIntFromBitArray(opcodeBits.And(opcodeMask));
+
+            return opcode;
         }
 
         /// <summary>
