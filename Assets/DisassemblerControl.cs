@@ -21,11 +21,66 @@ namespace MIPS
     {
         private static List<string> _binary;
         private static List<string> _instructions;
+        private static IDictionary<int, string> opcodes;
+        private static IDictionary<int, string> fcodes;
+
 
         static Disassembler()
         {
             _binary = new List<string>();
             _instructions = new List<string>();
+            initOpcodes();
+            initFcodes();
+        }
+
+        private static void initOpcodes()
+        {
+            opcodes = new Dictionary<int, string>();
+            opcodes.Add(0, "rtyp");
+            opcodes.Add(1, "branch");
+            opcodes.Add(2, "j");
+            opcodes.Add(3, "jal");
+            opcodes.Add(4, "beq");
+            opcodes.Add(5, "bne");
+            opcodes.Add(6, "blez");
+            opcodes.Add(7, "bgtz");
+            opcodes.Add(8, "addi");
+            opcodes.Add(10, "slti");
+            opcodes.Add(12, "andi");
+            opcodes.Add(13, "ori");
+            opcodes.Add(14, "xori");
+            opcodes.Add(15, "lui");
+            opcodes.Add(32, "lb");
+            opcodes.Add(35, "lw");
+            opcodes.Add(40, "sb");
+            opcodes.Add(43, "sw");
+        }
+
+        private static void initFcodes()
+        {
+            fcodes.Add(0, "sll");
+            fcodes.Add(2, "slr");
+            fcodes.Add(3, "sra");
+            fcodes.Add(4, "sllv");
+            fcodes.Add(6, "srlv");
+            fcodes.Add(7, "srav");
+            fcodes.Add(8, "jr");
+            fcodes.Add(9, "jalr");
+            fcodes.Add(12, "syscall");
+            fcodes.Add(13, "break");
+            fcodes.Add(16, "mfhi");
+            fcodes.Add(17, "mtlo");
+            fcodes.Add(18, "mflo");
+            fcodes.Add(19, "mtlo");
+            fcodes.Add(24, "mult");
+            fcodes.Add(26, "div");
+            fcodes.Add(32, "add");
+            fcodes.Add(34, "sub");
+            fcodes.Add(36, "and");
+            fcodes.Add(37, "or");
+            fcodes.Add(38, "xor");
+            fcodes.Add(39, "nor");
+            fcodes.Add(42, "slt");
         }
 
         /// <summary>
@@ -74,13 +129,48 @@ namespace MIPS
 
         private static void parse(BitArray word)
         {
+            int opcode = getOpcode(word);
+
+            if (!opcodes.ContainsKey(opcode))
+            {
+                Debug.Log("Opcode not found.");
+            }
+            else if (opcode == 0) // R-Instr
+            {
+            }
+            else if (opcode == 1)
+            {
+            }
+            else if (opcode == 2 || opcode == 3) // J-Instr
+            {
+            }
+            else if (opcode == 15)
+            {
+
+            }
+            else if (opcode == 32 || opcode == 35 || opcode == 40 || opcode == 43)
+            {
+            }
+            else
+            {
+
+            }
+        }
+
+        private static int getOpcode(BitArray word)
+        {
+            int opcode = -1;
+
             BitArray opcodeMask = new BitArray(6, true);
-            BitArray opcode = new BitArray(6);
+            BitArray opcodeBits = new BitArray(6);
             for (int idx = 0; idx <= 5; idx++)
             {
-                opcode[5 - idx] = word[idx];
+                opcodeBits[5 - idx] = word[idx];
             }
-            Debug.Log(getIntFromBitArray(opcode.And(opcodeMask)));
+
+            opcode = getIntFromBitArray(opcodeBits.And(opcodeMask));
+
+            return opcode;
         }
 
         /// <summary>
