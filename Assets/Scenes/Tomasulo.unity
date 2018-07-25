@@ -492,7 +492,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -50, y: -90}
+  m_AnchoredPosition: {x: -10, y: -90}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &906050959
@@ -692,7 +692,7 @@ GameObject:
   - component: {fileID: 1291667920}
   - component: {fileID: 1291667923}
   m_Layer: 5
-  m_Name: InstructionQueue
+  m_Name: Memory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -790,9 +790,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1291667918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e0b47cb009d2248952f5cd7a8214c7, type: 3}
+  m_Script: {fileID: 11500000, guid: 9598580bf09d46e47b20d1e2275fafc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _binaryFile: {fileID: 4900000, guid: 25adfd82a87c0354390114dac336aa89, type: 3}
+  _LogTemplate: {fileID: 2052089295}
 --- !u!1 &1382034808
 GameObject:
   m_ObjectHideFlags: 0
@@ -1246,8 +1248,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573792318}
-        m_MethodName: Disassemble
+      - m_Target: {fileID: 1291667923}
+        m_MethodName: Load
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1316,8 +1318,9 @@ GameObject:
   - component: {fileID: 2052089296}
   - component: {fileID: 2052089298}
   - component: {fileID: 2052089297}
+  - component: {fileID: 2052089299}
   m_Layer: 5
-  m_Name: TextTemplate
+  m_Name: MemoryLogTemplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1339,7 +1342,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 20}
+  m_SizeDelta: {x: 250, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2052089297
 MonoBehaviour:
@@ -1373,10 +1376,21 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Instruction goes here.................
+  m_Text: Binary word goes here.................
 --- !u!222 &2052089298
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2052089295}
+--- !u!114 &2052089299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2052089295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f83a5c0fc19e6dd40859d51dfdc9ce18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

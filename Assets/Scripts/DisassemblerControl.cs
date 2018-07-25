@@ -23,7 +23,7 @@ namespace MIPS
         private static List<string> _instructions;
         private static IDictionary<int, string> opcodes;
         private static IDictionary<int, string> fcodes;
-
+        private static IDictionary<int, string> registers;
 
         static Disassembler()
         {
@@ -31,6 +31,7 @@ namespace MIPS
             _instructions = new List<string>();
             initOpcodes();
             initFcodes();
+            initRegisters();
         }
 
         private static void initOpcodes()
@@ -58,6 +59,7 @@ namespace MIPS
 
         private static void initFcodes()
         {
+            fcodes = new Dictionary<int, string>();
             fcodes.Add(0, "sll");
             fcodes.Add(2, "slr");
             fcodes.Add(3, "sra");
@@ -81,6 +83,43 @@ namespace MIPS
             fcodes.Add(38, "xor");
             fcodes.Add(39, "nor");
             fcodes.Add(42, "slt");
+        }
+
+        private static void initRegisters()
+        {
+            registers = new Dictionary<int, string>();
+            registers.Add(0, "$zero");
+            registers.Add(1, "$at");
+            registers.Add(2, "$v0");
+            registers.Add(3, "$v1");
+            registers.Add(4, "$a0");
+            registers.Add(5, "$a1");
+            registers.Add(6, "$a2");
+            registers.Add(7, "$a3");
+            registers.Add(8, "$t0");
+            registers.Add(9, "$t1");
+            registers.Add(10, "$t2");
+            registers.Add(11, "$t3");
+            registers.Add(12, "$t4");
+            registers.Add(13, "$t5");
+            registers.Add(14, "$t6");
+            registers.Add(15, "$t7");
+            registers.Add(16, "$s0");
+            registers.Add(17, "$s1");
+            registers.Add(18, "$s2");
+            registers.Add(19, "$s3");
+            registers.Add(20, "$s4");
+            registers.Add(21, "$s5");
+            registers.Add(22, "$s6");
+            registers.Add(23, "$s7");
+            registers.Add(24, "$t8");
+            registers.Add(25, "$t9");
+            registers.Add(26, "$k0");
+            registers.Add(27, "$k1");
+            registers.Add(28, "$gp");
+            registers.Add(29, "$sp");
+            registers.Add(30, "$fp");
+            registers.Add(31, "$ra");
         }
 
         /// <summary>
@@ -143,6 +182,8 @@ namespace MIPS
             }
             else if (opcode == 2 || opcode == 3) // J-Instr
             {
+                int addr = getAddr(word);
+                Debug.Log(opcodes[opcode] + " " + addr);
             }
             else if (opcode == 15)
             {
@@ -171,6 +212,26 @@ namespace MIPS
             opcode = getIntFromBitArray(opcodeBits.And(opcodeMask));
 
             return opcode;
+        }
+
+        private static int getAddr(BitArray word)
+        {
+            int addr = -1;
+
+            BitArray addrMask = new BitArray(28, true);
+            BitArray addrBits = new BitArray(28);
+
+            for (int idx = 6; idx <= 31; idx++)
+            {
+                addrBits[33 - idx] = word[idx];
+            }
+
+            Debug.Log(toString(word));
+            Debug.Log(toString(addrBits));
+
+            addr = getIntFromBitArray(addrBits.And(addrMask));
+
+            return addr;
         }
 
         /// <summary>
