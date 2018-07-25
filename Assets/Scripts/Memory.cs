@@ -14,23 +14,28 @@
         [SerializeField]
         private GameObject _LogTemplate;
 
-        private List<Word> words; // A word is 32 bits (4 bytes)
+        private List<Word> _words; // A word is 32 bits (4 bytes)
 
         private void Awake()
         {
-            words = new List<Word>();
+            _words = new List<Word>();
             ReadFromDisk(_binaryFile.bytes);
         }
 
         public void Load()
         {
-            foreach (Word word in words)
+            foreach (Word word in _words)
             {
                 GameObject newWord = Instantiate<GameObject>(_LogTemplate) as GameObject;
                 newWord.SetActive(true);
                 newWord.GetComponent<MemoryLogItem>().SetText(word.ToString());
                 newWord.transform.SetParent(_LogTemplate.transform.parent, false);
             }
+        }
+
+        public List<Word> getWords()
+        {
+            return _words;
         }
 
         /// <summary>
@@ -53,7 +58,7 @@
                         readError = true;
                         break;
                     }
-                    words.Add(new MIPS.Word(word));
+                    _words.Add(new MIPS.Word(word));
                 }
                 br.Close();
             }
