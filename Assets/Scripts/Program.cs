@@ -9,6 +9,13 @@
         [SerializeField]
         public Memory _memory;
 
+        private List<Instruction> instructions;
+
+        private void Awake()
+        {
+            instructions = new List<Instruction>();
+        }
+
         public void Disassemble()
         {
             foreach (Word word in _memory.getWords());
@@ -29,105 +36,105 @@
     {
         private static List<string> _binary;
         private static List<string> _instructions;
-        private static IDictionary<int, string> opcodes;
-        private static IDictionary<int, string> fcodes;
-        private static IDictionary<int, string> registers;
+
+        #region opcodes
+        private static readonly Dictionary<int, string> opcodes
+            = new Dictionary<int, string>
+            {
+                { 0, "rtyp" },
+                { 1, "branch" },
+                { 2, "j" },
+                { 3, "jal" },
+                { 4, "beq" },
+                { 5, "bne" },
+                { 6, "blez" },
+                { 7, "bgtz" },
+                { 8, "addi" },
+                { 10, "slti" },
+                { 12, "andi" },
+                { 13, "ori" },
+                { 14, "xori" },
+                { 15, "lui" },
+                { 32, "lb"},
+                { 35, "lw" },
+                { 40, "sb" },
+                { 43, "sw" }
+            };
+        #endregion
+
+        #region fcodes
+        private static readonly Dictionary<int, string> fcodes
+            = new Dictionary<int, string>
+            {
+                { 0, "sll" },
+                { 2, "slr" },
+                { 3, "sra" },
+                { 4, "sllv" },
+                { 6, "srlv" },
+                { 7, "srav" },
+                { 8, "jr" },
+                { 9, "jalr" },
+                { 12, "syscall" },
+                { 13, "break" },
+                { 16, "mfhi" },
+                { 17, "mtlo" },  // TODO: check this code
+                { 18, "mflo" },
+                { 19, "mtlo" },  // TODO: check this code
+                { 24, "mult" },
+                { 26, "div" },
+                { 32, "add" },
+                { 34, "sub" },
+                { 36, "and" },
+                { 37, "or" },
+                { 38, "xor" },
+                { 39, "nor" },
+                { 42, "slt" }
+            };
+        #endregion
+
+        #region registers
+        private static readonly Dictionary<int, string> registers
+            = new Dictionary<int, string>
+            {
+                { 0, "$zero" },
+                { 1, "$at" },
+                { 2, "$v0" },
+                { 3, "$v1" },
+                { 4, "$a0"},
+                { 5, "$a1" },
+                { 6, "$a2" },
+                { 7, "$a3" },
+                { 8, "$t0" },
+                { 9, "$t1" },
+                { 10, "$t2"},
+                { 11, "$t3" },
+                { 12, "$t4" },
+                { 13, "$t5" },
+                { 14, "$t6" },
+                { 15, "$t7" },
+                { 16, "$s0" },
+                { 17, "$s1" },
+                { 18, "$s2" },
+                { 19, "$s3" },
+                { 20, "$s4" },
+                { 21, "$s5" },
+                { 22, "$s6" },
+                { 23, "$s7" },
+                { 24, "$t8" },
+                { 25, "$t9" },
+                { 26, "$k0" },
+                { 27, "$k1" },
+                { 28, "$gp" },
+                { 29, "$sp" },
+                { 30, "$fp" },
+                { 31, "$ra" }
+            };
+        #endregion
 
         static Disassembler()
         {
             _binary = new List<string>();
             _instructions = new List<string>();
-            initOpcodes();
-            initFcodes();
-            initRegisters();
-        }
-
-        private static void initOpcodes()
-        {
-            opcodes = new Dictionary<int, string>();
-            opcodes.Add(0, "rtyp");
-            opcodes.Add(1, "branch");
-            opcodes.Add(2, "j");
-            opcodes.Add(3, "jal");
-            opcodes.Add(4, "beq");
-            opcodes.Add(5, "bne");
-            opcodes.Add(6, "blez");
-            opcodes.Add(7, "bgtz");
-            opcodes.Add(8, "addi");
-            opcodes.Add(10, "slti");
-            opcodes.Add(12, "andi");
-            opcodes.Add(13, "ori");
-            opcodes.Add(14, "xori");
-            opcodes.Add(15, "lui");
-            opcodes.Add(32, "lb");
-            opcodes.Add(35, "lw");
-            opcodes.Add(40, "sb");
-            opcodes.Add(43, "sw");
-        }
-
-        private static void initFcodes()
-        {
-            fcodes = new Dictionary<int, string>();
-            fcodes.Add(0, "sll");
-            fcodes.Add(2, "slr");
-            fcodes.Add(3, "sra");
-            fcodes.Add(4, "sllv");
-            fcodes.Add(6, "srlv");
-            fcodes.Add(7, "srav");
-            fcodes.Add(8, "jr");
-            fcodes.Add(9, "jalr");
-            fcodes.Add(12, "syscall");
-            fcodes.Add(13, "break");
-            fcodes.Add(16, "mfhi");
-            fcodes.Add(17, "mtlo");
-            fcodes.Add(18, "mflo");
-            fcodes.Add(19, "mtlo");
-            fcodes.Add(24, "mult");
-            fcodes.Add(26, "div");
-            fcodes.Add(32, "add");
-            fcodes.Add(34, "sub");
-            fcodes.Add(36, "and");
-            fcodes.Add(37, "or");
-            fcodes.Add(38, "xor");
-            fcodes.Add(39, "nor");
-            fcodes.Add(42, "slt");
-        }
-
-        private static void initRegisters()
-        {
-            registers = new Dictionary<int, string>();
-            registers.Add(0, "$zero");
-            registers.Add(1, "$at");
-            registers.Add(2, "$v0");
-            registers.Add(3, "$v1");
-            registers.Add(4, "$a0");
-            registers.Add(5, "$a1");
-            registers.Add(6, "$a2");
-            registers.Add(7, "$a3");
-            registers.Add(8, "$t0");
-            registers.Add(9, "$t1");
-            registers.Add(10, "$t2");
-            registers.Add(11, "$t3");
-            registers.Add(12, "$t4");
-            registers.Add(13, "$t5");
-            registers.Add(14, "$t6");
-            registers.Add(15, "$t7");
-            registers.Add(16, "$s0");
-            registers.Add(17, "$s1");
-            registers.Add(18, "$s2");
-            registers.Add(19, "$s3");
-            registers.Add(20, "$s4");
-            registers.Add(21, "$s5");
-            registers.Add(22, "$s6");
-            registers.Add(23, "$s7");
-            registers.Add(24, "$t8");
-            registers.Add(25, "$t9");
-            registers.Add(26, "$k0");
-            registers.Add(27, "$k1");
-            registers.Add(28, "$gp");
-            registers.Add(29, "$sp");
-            registers.Add(30, "$fp");
-            registers.Add(31, "$ra");
         }
 
         public static void Disassemble(BitArray word)
@@ -197,9 +204,6 @@
 
         private static int getIntFromBitArray(BitArray bitArray)
         {
-            if (bitArray.Length > 32)
-                throw new ArgumentException("Argument length shall be at most 32 bits.");
-
             int[] array = new int[1];
             bitArray.CopyTo(array, 0);
             return array[0];
