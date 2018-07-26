@@ -426,7 +426,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77fb3c04ed38084a85b47b16295e1a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  binaryFile: {fileID: 4900000, guid: 25adfd82a87c0354390114dac336aa89, type: 3}
 --- !u!4 &573792319
 Transform:
   m_ObjectHideFlags: 0
@@ -1060,8 +1059,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1324370208}
-        m_MethodName: 
+      - m_Target: {fileID: 1324370213}
+        m_MethodName: Disassemble
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1319,6 +1318,7 @@ GameObject:
   - component: {fileID: 1324370212}
   - component: {fileID: 1324370211}
   - component: {fileID: 1324370210}
+  - component: {fileID: 1324370213}
   m_Layer: 5
   m_Name: Program
   m_TagString: Untagged
@@ -1410,6 +1410,18 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1324370208}
+--- !u!114 &1324370213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1324370208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f56fa4585f773d49af03c76c4eeb91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _memory: {fileID: 1291667923}
 --- !u!1 &1382034808
 GameObject:
   m_ObjectHideFlags: 0

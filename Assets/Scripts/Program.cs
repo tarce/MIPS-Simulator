@@ -18,7 +18,10 @@
 
         public void Disassemble()
         {
-            foreach (Word word in _memory.getWords());
+            foreach (Word word in _memory.getWords())
+            {
+                Disassembler.Disassemble(word);
+            }
         }
     }
 
@@ -137,30 +140,28 @@
             _instructions = new List<string>();
         }
 
-        public static void Disassemble(BitArray word)
+        public static void Disassemble(Word word)
         {
-            int opcode = getOpcode(word);
-
-            if (!opcodes.ContainsKey(opcode))
+            if (!opcodes.ContainsKey(word.opcode))
             {
                 Debug.Log("Opcode not found.");
             }
-            else if (opcode == 0) // R-Instr
+            else if (word.opcode == 0) // R-Instr
             {
             }
-            else if (opcode == 1)
+            else if (word.opcode == 1)
             {
             }
-            else if (opcode == 2 || opcode == 3) // J-Instr
+            else if (word.opcode == 2 || word.opcode == 3) // J-Instr
             {
-                int addr = getAddr(word);
-                Debug.Log(opcodes[opcode] + " " + addr);
+                Debug.Log(Helpers.toString(word.addrBits));
+                Debug.Log(opcodes[word.opcode] + " " + word.addr);
             }
-            else if (opcode == 15)
+            else if (word.opcode == 15)
             {
 
             }
-            else if (opcode == 32 || opcode == 35 || opcode == 40 || opcode == 43)
+            else if (word.opcode == 32 || word.opcode == 35 || word.opcode == 40 || word.opcode == 43)
             {
             }
             else
@@ -169,45 +170,7 @@
             }
         }
 
-        private static int getOpcode(BitArray word)
-        {
-            int opcode = -1;
 
-            BitArray opcodeMask = new BitArray(6, true);
-            BitArray opcodeBits = new BitArray(6);
-            for (int idx = 0; idx <= 5; idx++)
-            {
-                opcodeBits[5 - idx] = word[idx];
-            }
-
-            opcode = getIntFromBitArray(opcodeBits.And(opcodeMask));
-
-            return opcode;
-        }
-
-        private static int getAddr(BitArray word)
-        {
-            int addr = -1;
-
-            BitArray addrMask = new BitArray(28, true);
-            BitArray addrBits = new BitArray(28);
-
-            for (int idx = 6; idx <= 31; idx++)
-            {
-                addrBits[33 - idx] = word[idx];
-            }
-
-            addr = getIntFromBitArray(addrBits.And(addrMask));
-
-            return addr;
-        }
-
-        private static int getIntFromBitArray(BitArray bitArray)
-        {
-            int[] array = new int[1];
-            bitArray.CopyTo(array, 0);
-            return array[0];
-        }
     }
 }
 

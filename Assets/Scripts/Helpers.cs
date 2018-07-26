@@ -34,5 +34,15 @@
             }
             return bitString;
         }
+
+        public static BitArray reverse(BitArray bits)
+        {
+            BitArray temp = new BitArray(bits.Count);
+            for (int i = 0; i < bits.Count; i++)
+            {
+                temp[(bits.Count - 1) - i] = bits[i];
+            }
+            return temp;
+        }
     }
 }
