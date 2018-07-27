@@ -25,23 +25,92 @@
         }
     }
 
+
+    public class Instruction_J : Instruction
+    {
+        public Instruction_J(Word word, Type type) : 
+            base(word, type)
+        {
+        }
+    }
+
+    public class Instruciton_R : Instruction
+    {
+        public Instruciton_R(Word word, Type type) :
+            base(word, type)
+        {
+        }
+    }
+
+    public class Instruction_I : Instruction
+    {
+        public Instruction_I(Word word, Type type) :
+            base(word, type)
+        {
+        }
+    }
+
     public class Instruction
     {
-        Word _word;
+        public enum Type
+        { 
+            jType,
+            rType,
+            iType
+        };
 
-        public Instruction()
+        private Word _word;
+        private Type _type;
+        private BitArray[] _bitParts;
+        private int[] _parts;
+
+        public Instruction(Word word, Type type)
         {
+            _word = word;
+            _type = type;
+        }
 
+        public string PrintBitParts()
+        {
+            string instruction;
+            switch (_type)
+            {
+                case Type.jType:
+                    instruction = _bitParts[0] + " " + _bitParts[1];
+                    break;
+                case Type.rType:
+                    break;
+                case Type.iType:
+                    break;
+                default:
+                    break;
+            }
+            return instruction;
+        }
+
+        public override string ToString()
+        {
+            string instruction;
+            switch(_type)
+            {
+                case Type.jType:
+                    instruction =  Disassembler.opcodes[_parts[0]] + " " + _parts[1];
+                    break;
+                case Type.rType:
+                    break;
+                case Type.iType:
+                    break;
+                default:
+                    break;
+            }
+            return instruction;
         }
     }
 
     public static class Disassembler
     {
-        private static List<string> _binary;
-        private static List<string> _instructions;
-
         #region opcodes
-        private static readonly Dictionary<int, string> opcodes
+        public static readonly Dictionary<int, string> opcodes
             = new Dictionary<int, string>
             {
                 { 0, "rtyp" },
@@ -66,7 +135,7 @@
         #endregion
 
         #region fcodes
-        private static readonly Dictionary<int, string> fcodes
+        public static readonly Dictionary<int, string> fcodes
             = new Dictionary<int, string>
             {
                 { 0, "sll" },
@@ -96,7 +165,7 @@
         #endregion
 
         #region registers
-        private static readonly Dictionary<int, string> registers
+        public static readonly Dictionary<int, string> registers
             = new Dictionary<int, string>
             {
                 { 0, "$zero" },
@@ -134,14 +203,10 @@
             };
         #endregion
 
-        static Disassembler()
+        public static Instruction Disassemble(Word word)
         {
-            _binary = new List<string>();
-            _instructions = new List<string>();
-        }
+            Instruction instr;
 
-        public static void Disassemble(Word word)
-        {
             if (!opcodes.ContainsKey(word.opcode))
             {
                 Debug.Log("Opcode not found.");
@@ -154,8 +219,8 @@
             }
             else if (word.opcode == 2 || word.opcode == 3) // J-Instr
             {
-                Debug.Log(Helpers.toString(word.addrBits));
-                Debug.Log(opcodes[word.opcode] + " " + word.addr);
+                instr = new Instruction(word, Instruction.Type.jType);
+                Debug.Log(instr.ToString());
             }
             else if (word.opcode == 15)
             {
