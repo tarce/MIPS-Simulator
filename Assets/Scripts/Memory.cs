@@ -107,6 +107,8 @@
             getRt();
             getRd();
             getShamt();
+            getFunct();
+            getImm();
             getAddr();
         }
 
