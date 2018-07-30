@@ -1,5 +1,6 @@
 ﻿namespace MIPS
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
@@ -42,11 +43,11 @@
             opcode = Disassembler.opcodes[word.opcode];
             addresss = word.addr;
 
-            opcodeBits = Helpers.toString(word.addrBits);
+            opcodeBits = Helpers.toString(word.opcodeBits);
             addrsBits = Helpers.toString(word.addrBits);
         }
 
-        public string FormattedBits()
+        public override string FormattedBits()
         {
             return opcodeBits + " " + addrsBits;
         }
@@ -60,11 +61,18 @@
     public class Instruciton_R : Instruction
     {
         private string opcode;
-        private string rs;
-        private string rt;
-        private string rd;
-        private string shamt;
+        private int rs;
+        private int rt;
+        private int rd;
+        private int shamt;
         private string funct;
+
+        private string opcodeBits;
+        private string rsBits;
+        private string rtBits;
+        private string rdBits;
+        private string shamtBits;
+        private string functBits;
 
         public Instruciton_R(Word word) :
             base(word)
@@ -77,23 +85,53 @@
 
             _type = Type.rType;
 
+            opcode = Disassembler.opcodes[word.opcode];
+            rs = word.rs;
+            rt = word.rt;
+            rd = word.rd;
+            shamt = word.shamt;
+            funct = Disassembler.fcodes[word.funct];
+
+            opcodeBits = Helpers.toString(word.opcodeBits);
+            rsBits = Helpers.toString(word.rsBits);
+            rtBits = Helpers.toString(word.rtBits);
+            rdBits = Helpers.toString(word.rdBits);
+            shamtBits = Helpers.toString(word.shamtBits);
+            functBits = Helpers.toString(word.functBits);
+        }
+
+        public override string FormattedBits()
+        {
+            return opcodeBits + " " + rsBits + " " + rtBits + " " + rdBits + 
+                " " + shamtBits + " " + functBits;
         }
 
         public override string ToString()
         {
             string instruction = "";
-            if  // shift instruction
+            if  // shift by amount
                 (_word.funct == 0 ||
                 _word.funct == 2 ||
                 _word.funct == 3)
             {
                 instruction = funct + " " + rd + "," + rt + "," + shamt;
             }
-            else if // jr/jalr
-                (_word.funct == 8 ||
-                _word.funct == 9)
+            else if // shift by value
+                (_word.funct == 4 ||
+                _word.funct == 6 ||
+                _word.funct == 7)
+            {
+                instruction = funct + " " + rd + "," + rt + "," + rs;
+            }
+            else if // jr
+                (_word.funct == 8)
             {
                 instruction = funct + " " + rs;
+            }
+            else if // jalr TODO: check implicit form
+                (_word.funct == 9)
+            {
+                instruction = funct + " " + rd + "," + rs;
             }
             else if // syscall or break
                 (_word.funct == 12 ||
@@ -101,17 +139,23 @@
             {
                 instruction = funct;
             }
-            else if // mfhi, mthi, mflo, mtlo
+            else if // mfhi, mflo 
                 (_word.funct == 16 ||
-                _word.funct == 17 ||
-                _word.funct == 18 ||
-                _word.funct == 19)
+                _word.funct == 18)
             {
                 instruction = funct + " " + rd;
             }
+            else if // mthi, mtlo
+                (_word.funct == 17 || 
+                _word.funct == 19)
+            {
+                instruction = funct + " " + rs;
+            }
             else if // mult and div
                 (_word.funct == 24 ||
-                _word.funct == 26)
+                _word.funct == 25 ||
+                _word.funct == 26 ||
+                _word.funct == 27)
             {
                 instruction = funct + " " + rs + "," + rt;
             }
@@ -125,14 +169,34 @@
 
     public class Instruction_I : Instruction
     {
+        private string opcode;
+        private int rs;
+        private int rt;
+        private int imm;
+
+        private string opcodeBits;
+        private string rsBits;
+        private string rtBits;
+        private string immBits;
+
         public Instruction_I(Word word) :
             base(word)
         {
             _type = Type.iType;
         }
+
+        public override string FormattedBits()
+        {
+            return opcodeBits + " " + rsBits + " " + rtBits + " " + immBits;
+        }
+
+        public override string ToString()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class Instruction
+    public abstract class Instruction
     {
         public enum Type
         { 
@@ -148,6 +212,10 @@
         {
             _word = word;
         }
+
+        public abstract string FormattedBits();
+
+        public override abstract string ToString();
 
     }
 
@@ -167,13 +235,17 @@
                 { 6, "blez" },
                 { 7, "bgtz" },
                 { 8, "addi" },
+                { 9, "addiu" },
                 { 10, "slti" },
+                { 11, "sltiu" },
                 { 12, "andi" },
                 { 13, "ori" },
                 { 14, "xori" },
                 { 15, "lui" },
                 { 32, "lb"},
-                { 35, "lw" },
+                { 33, "lh"},
+                { 34, "lw"},
+                { 35, "lw" }, // TODO: Check lw
                 { 40, "sb" },
                 { 43, "sw" }
             };
@@ -192,20 +264,25 @@
                 { 8, "jr" },
                 { 9, "jalr" },
                 { 12, "syscall" },
-                { 13, "break" },
+                { 13, "break" },  // TODO: check this code
                 { 16, "mfhi" },
-                { 17, "mtlo" },  // TODO: check this code
+                { 17, "mthi" },  
                 { 18, "mflo" },
-                { 19, "mtlo" },  // TODO: check this code
+                { 19, "mtlo" }, 
                 { 24, "mult" },
+                { 25, "multu" },
                 { 26, "div" },
+                { 27, "divu" },
                 { 32, "add" },
+                { 33, "addu" },
                 { 34, "sub" },
+                { 35, "subu" },
                 { 36, "and" },
                 { 37, "or" },
                 { 38, "xor" },
                 { 39, "nor" },
-                { 42, "slt" }
+                { 42, "slt" },
+                { 43, "sltu" }
             };
         #endregion
 
@@ -250,7 +327,7 @@
 
         public static Instruction Disassemble(Word word)
         {
-            Instruction instr = new Instruction(word); ;
+            Instruction instr = null;
 
             if (!opcodes.ContainsKey(word.opcode))
             {
@@ -259,6 +336,7 @@
             else if (word.opcode == 0) // R-Instr
             {
                 instr = new Instruciton_R(word);
+                Debug.Log(instr.ToString());
             }
             else if (word.opcode == 1)
             {

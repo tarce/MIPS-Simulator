@@ -75,7 +75,7 @@
         public int rs;
         public int rt;
         public int rd;
-        public int shamd;   // R-type
+        public int shamt;   // R-type
         public int funct;   // R-type
         public int imm;     // I-type
         public int addr;    // J-type
@@ -86,7 +86,7 @@
         public BitArray rsBits;
         public BitArray rtBits;
         public BitArray rdBits;
-        public BitArray shamdBits;   // R-type
+        public BitArray shamtBits;   // R-type
         public BitArray functBits;   // R-type
         public BitArray immBits;     // I-type
         public BitArray addrBits;    // J-type
