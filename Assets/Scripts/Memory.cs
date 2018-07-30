@@ -104,6 +104,9 @@
             _bits = store(bytes);
             getOpcode();
             getRs();
+            getRt();
+            getRd();
+            getShamt();
             getAddr();
         }
 
@@ -151,6 +154,66 @@
             }
             rs = getIntVal(rsBits, rsMask);
             rsBits = Helpers.reverse(rsBits);
+        }
+
+        private void getRt()
+        {
+            BitArray rtMask = new BitArray(5, true);
+            rtBits = new BitArray(5);
+            for (int idx = 11; idx <= 15; idx++)
+            {
+                rtBits[15 - idx] = _bits[idx];
+            }
+            rt = getIntVal(rtBits, rtMask);
+            rtBits = Helpers.reverse(rtBits);
+        }
+
+        private void getRd()
+        {
+            BitArray rdMask = new BitArray(5, true);
+            rdBits = new BitArray(5);
+            for (int idx = 16; idx <= 20; idx++)
+            {
+                rdBits[20 - idx] = _bits[idx];
+            }
+            rd = getIntVal(rdBits, rdMask);
+            rdBits = Helpers.reverse(rdBits);
+        }
+
+        private void getShamt()
+        {
+            BitArray shamtMask = new BitArray(5, true);
+            shamtBits = new BitArray(5);
+            for (int idx = 21; idx <= 25; idx++)
+            {
+                shamtBits[25 - idx] = _bits[idx];
+            }
+            shamt = getIntVal(shamtBits, shamtMask);
+            shamtBits = Helpers.reverse(shamtBits);
+        }
+
+        private void getFunct()
+        {
+            BitArray functMask = new BitArray(6, true);
+            functBits = new BitArray(6);
+            for (int idx = 26; idx <= 31; idx++)
+            {
+                functBits[31 - idx] = _bits[idx];
+            }
+            funct = getIntVal(functBits, functMask);
+            functBits = Helpers.reverse(functBits);
+        }
+
+        private void getImm()
+        {
+            BitArray immMask = new BitArray(16, true);
+            immBits = new BitArray(16);
+            for (int idx = 16; idx <= 31; idx++)
+            {
+                immBits[31 - idx] = _bits[idx];
+            }
+            imm = getIntVal(immBits, immMask);
+            immBits = Helpers.reverse(immBits);
         }
 
         private void getAddr()
