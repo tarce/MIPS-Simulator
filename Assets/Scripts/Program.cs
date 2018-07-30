@@ -28,25 +28,107 @@
 
     public class Instruction_J : Instruction
     {
-        public Instruction_J(Word word, Type type) : 
-            base(word, type)
+        private string opcode;
+        private int addresss;
+
+        private string opcodeBits;
+        private string addrsBits;
+
+        public Instruction_J(Word word) : 
+            base(word)
         {
+            _type = Type.jType;
+
+            opcode = Disassembler.opcodes[word.opcode];
+            addresss = word.addr;
+
+            opcodeBits = Helpers.toString(word.addrBits);
+            addrsBits = Helpers.toString(word.addrBits);
+        }
+
+        public string FormattedBits()
+        {
+            return opcodeBits + " " + addrsBits;
+        }
+
+        public override string ToString()
+        {
+            return opcode + "," + addresss;
         }
     }
 
     public class Instruciton_R : Instruction
     {
-        public Instruciton_R(Word word, Type type) :
-            base(word, type)
+        private string opcode;
+        private string rs;
+        private string rt;
+        private string rd;
+        private string shamt;
+        private string funct;
+
+        public Instruciton_R(Word word) :
+            base(word)
         {
+            if (!Disassembler.fcodes.ContainsKey(word.funct))
+            {
+                Debug.Log("Instruction_R Error: Fcode not found.");
+                return;
+            }
+
+            _type = Type.rType;
+
+        }
+
+        public override string ToString()
+        {
+            string instruction = "";
+            if  // shift instruction
+                (_word.funct == 0 ||
+                _word.funct == 2 ||
+                _word.funct == 3)
+            {
+                instruction = funct + " " + rd + "," + rt + "," + shamt;
+            }
+            else if // jr/jalr
+                (_word.funct == 8 ||
+                _word.funct == 9)
+            {
+                instruction = funct + " " + rs;
+            }
+            else if // syscall or break
+                (_word.funct == 12 ||
+                _word.funct == 13)
+            {
+                instruction = funct;
+            }
+            else if // mfhi, mthi, mflo, mtlo
+                (_word.funct == 16 ||
+                _word.funct == 17 ||
+                _word.funct == 18 ||
+                _word.funct == 19)
+            {
+                instruction = funct + " " + rd;
+            }
+            else if // mult and div
+                (_word.funct == 24 ||
+                _word.funct == 26)
+            {
+                instruction = funct + " " + rs + "," + rt;
+            }
+            else
+            {
+                instruction = funct + " " + rd + "," + rs + "," + rt;
+            }
+            return instruction;
         }
     }
 
     public class Instruction_I : Instruction
     {
-        public Instruction_I(Word word, Type type) :
-            base(word, type)
+        public Instruction_I(Word word) :
+            base(word)
         {
+            _type = Type.iType;
         }
     }
 
@@ -59,54 +141,17 @@
             iType
         };
 
-        private Word _word;
-        private Type _type;
-        private BitArray[] _bitParts;
-        private int[] _parts;
+        protected Word _word;
+        protected Type _type;
 
-        public Instruction(Word word, Type type)
+        public Instruction(Word word)
         {
             _word = word;
-            _type = type;
         }
 
-        public string PrintBitParts()
-        {
-            string instruction;
-            switch (_type)
-            {
-                case Type.jType:
-                    instruction = _bitParts[0] + " " + _bitParts[1];
-                    break;
-                case Type.rType:
-                    break;
-                case Type.iType:
-                    break;
-                default:
-                    break;
-            }
-            return instruction;
-        }
-
-        public override string ToString()
-        {
-            string instruction;
-            switch(_type)
-            {
-                case Type.jType:
-                    instruction =  Disassembler.opcodes[_parts[0]] + " " + _parts[1];
-                    break;
-                case Type.rType:
-                    break;
-                case Type.iType:
-                    break;
-                default:
-                    break;
-            }
-            return instruction;
-        }
     }
 
+    // TODO: see: https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
     public static class Disassembler
     {
         #region opcodes
@@ -205,7 +250,7 @@
 
         public static Instruction Disassemble(Word word)
         {
-            Instruction instr;
+            Instruction instr = new Instruction(word); ;
 
             if (!opcodes.ContainsKey(word.opcode))
             {
@@ -213,13 +258,14 @@
             }
             else if (word.opcode == 0) // R-Instr
             {
+                instr = new Instruciton_R(word);
             }
             else if (word.opcode == 1)
             {
             }
             else if (word.opcode == 2 || word.opcode == 3) // J-Instr
             {
-                instr = new Instruction(word, Instruction.Type.jType);
+                instr = new Instruction_J(word);
                 Debug.Log(instr.ToString());
             }
             else if (word.opcode == 15)
@@ -233,6 +279,8 @@
             {
 
             }
+
+            return instr;
         }
 
 
