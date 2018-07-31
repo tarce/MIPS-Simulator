@@ -77,12 +77,6 @@
         public Instruciton_R(Word word) :
             base(word)
         {
-            if (!Disassembler.fcodes.ContainsKey(word.funct))
-            {
-                Debug.Log("Instruction_R Error: Fcode not found.");
-                return;
-            }
-
             _type = Type.rType;
 
             opcode = Disassembler.opcodes[word.opcode];
@@ -247,16 +241,25 @@
 
         protected Word _word;
         protected Type _type;
+        private bool validOpcode;
 
         public Instruction(Word word)
         {
             _word = word;
         }
 
+        protected BitArray SignExtend(int numBits, BitArray bits)
+        {
+            BitArray result = new BitArray(numBits + bits.Count);
+
+
+
+            return result;
+        } 
+
         public abstract string FormattedBits();
 
         public override abstract string ToString();
-
     }
 
     // TODO: see: https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
@@ -371,28 +374,40 @@
         public static Instruction Disassemble(Word word)
         {
             Instruction instr = null;
-
             if (!opcodes.ContainsKey(word.opcode))
             {
-                Debug.Log("Opcode not found.");
-                return;
+                Debug.Log("Disassembler Error: Opcode not found.");
             }
-            else if (word.opcode == 0) // R-Instr
+            else if // R-Instructions
+                (word.opcode == 0) 
             {
-                instr = new Instruciton_R(word);
-                Debug.Log(instr.ToString());
+                if (!fcodes.ContainsKey(word.funct))
+                {
+                    Debug.Log("Disassembler Error: Fcode not found.");
+                }
+                else
+                {
+                    instr = new Instruciton_R(word);
+                    Debug.Log(instr.ToString());
+                    Debug.Log(instr.FormattedBits());
+                }
             }
-            else if (word.opcode == 2 || word.opcode == 3) // J-Instr
+            else if // J-Instructions
+                (word.opcode == 2 || 
+                word.opcode == 3) 
             {
                 instr = new Instruction_J(word);
                 Debug.Log(instr.ToString());
+                Debug.Log(instr.FormattedBits());
             }
-            else if (word.opcode == 1 ||  word.opcode > 3)
+            else if // I-Instructions
+                (word.opcode == 1 || 
+                word.opcode > 3)
             {
                 instr = new Instruction_I(word);
                 Debug.Log(instr.ToString());
+                Debug.Log(instr.FormattedBits());
             }
-
             return instr;
         }
 
