@@ -1,5 +1,6 @@
 ﻿namespace MIPS
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
@@ -18,27 +19,251 @@
 
         public void Disassemble()
         {
-            foreach (Word word in _memory.getWords());
+            foreach (Word word in _memory.getWords())
+            {
+                Disassembler.Disassemble(word);
+            }
         }
     }
 
-    public class Instruction
+
+    public class Instruction_J : Instruction
     {
-        Word _word;
+        private string opcode;
+        private int addresss;
 
-        public Instruction()
+        private string opcodeBits;
+        private string addrsBits;
+
+        public Instruction_J(Word word) : 
+            base(word)
         {
+            _type = Type.jType;
 
+            opcode = Disassembler.opcodes[word.opcode];
+            addresss = word.addr;
+
+            opcodeBits = Helpers.toString(word.opcodeBits);
+            addrsBits = Helpers.toString(word.addrBits);
+        }
+
+        public override string FormattedBits()
+        {
+            return opcodeBits + " " + addrsBits;
+        }
+
+        public override string ToString()
+        {
+            return opcode + ", " + addresss;
         }
     }
 
+    public class Instruciton_R : Instruction
+    {
+        private string opcode;
+        private int rs;
+        private int rt;
+        private int rd;
+        private int shamt;
+        private string funct;
+
+        private string opcodeBits;
+        private string rsBits;
+        private string rtBits;
+        private string rdBits;
+        private string shamtBits;
+        private string functBits;
+
+        public Instruciton_R(Word word) :
+            base(word)
+        {
+            if (!Disassembler.fcodes.ContainsKey(word.funct))
+            {
+                Debug.Log("Instruction_R Error: Fcode not found.");
+                return;
+            }
+
+            _type = Type.rType;
+
+            opcode = Disassembler.opcodes[word.opcode];
+            rs = word.rs;
+            rt = word.rt;
+            rd = word.rd;
+            shamt = word.shamt;
+            funct = Disassembler.fcodes[word.funct];
+
+            opcodeBits = Helpers.toString(word.opcodeBits);
+            rsBits = Helpers.toString(word.rsBits);
+            rtBits = Helpers.toString(word.rtBits);
+            rdBits = Helpers.toString(word.rdBits);
+            shamtBits = Helpers.toString(word.shamtBits);
+            functBits = Helpers.toString(word.functBits);
+        }
+
+        public override string FormattedBits()
+        {
+            return opcodeBits + " " + rsBits + " " + rtBits + " " + rdBits + 
+                " " + shamtBits + " " + functBits;
+        }
+
+        public override string ToString()
+        {
+            string instruction = "";
+            if  // shift by amount
+                (_word.funct == 0 ||
+                _word.funct == 2 ||
+                _word.funct == 3)
+            {
+                instruction = funct + " " + rd + ", " + rt + ", " + shamt;
+            }
+            else if // shift by value
+                (_word.funct == 4 ||
+                _word.funct == 6 ||
+                _word.funct == 7)
+            {
+                instruction = funct + " " + rd + ", " + rt + ", " + rs;
+            }
+            else if // jr
+                (_word.funct == 8)
+            {
+                instruction = funct + " " + rs;
+            }
+            else if // jalr TODO: check implicit form
+                (_word.funct == 9)
+            {
+                instruction = funct + " " + rd + ", " + rs;
+            }
+            else if // syscall or break
+                (_word.funct == 12 ||
+                _word.funct == 13)
+            {
+                instruction = funct;
+            }
+            else if // mfhi, mflo 
+                (_word.funct == 16 ||
+                _word.funct == 18)
+            {
+                instruction = funct + " " + rd;
+            }
+            else if // mthi, mtlo
+                (_word.funct == 17 || 
+                _word.funct == 19)
+            {
+                instruction = funct + " " + rs;
+            }
+            else if // mult and div
+                (_word.funct == 24 ||
+                _word.funct == 25 ||
+                _word.funct == 26 ||
+                _word.funct == 27)
+            {
+                instruction = funct + " " + rs + ", " + rt;
+            }
+            else
+            {
+                instruction = funct + " " + rd + ", " + rs + ", " + rt;
+            }
+            return instruction;
+        }
+    }
+
+    public class Instruction_I : Instruction
+    {
+        private string opcode;
+        private int rs;
+        private int rt;
+        private int imm;
+
+        private string opcodeBits;
+        private string rsBits;
+        private string rtBits;
+        private string immBits;
+
+        public Instruction_I(Word word) :
+            base(word)
+        {
+            _type = Type.iType;
+
+            opcode = Disassembler.opcodes[word.opcode];
+            rs = word.rs;
+            rt = word.rt;
+            imm = word.imm;
+
+            opcodeBits = Helpers.toString(word.opcodeBits);
+            rsBits = Helpers.toString(word.rsBits);
+            rtBits = Helpers.toString(word.rtBits);
+            immBits = Helpers.toString(word.shamtBits);
+        }
+
+        public override string FormattedBits()
+        {
+            return opcodeBits + " " + rsBits + " " + rtBits + " " + immBits;
+        }
+
+        public override string ToString()
+        {
+            string instruction = "";
+            if // beq or bne
+                (_word.opcode == 4 ||
+                _word.opcode == 5)
+            {
+                instruction = opcode + " " + rs + ", " + rt + ", " + imm;
+            }
+            else if //branch (bgez, bltz), blez, bgtz
+                (_word.opcode == 1 ||
+                _word.opcode == 6 ||
+                _word.opcode == 7)
+            {
+                instruction = opcode + " " + rs + ", " + imm;
+            }
+            else if // addi, addiu, slti, sltiu, andi, ori, xori
+                (_word.opcode >= 8 && 
+                _word.opcode <= 14
+                )
+            {
+                instruction = opcode + " " + rt + ", " + rs + ", " + imm;
+            }
+            else if // lui
+                (_word.opcode == 15)
+            {
+                instruction = opcode + " " + rt + ", " + imm;
+            }
+            else
+            {
+                instruction = opcode + " " + rt + ", " + imm + "(" + rs + ")";
+            }
+            return instruction;
+        }
+    }
+
+    public abstract class Instruction
+    {
+        public enum Type
+        { 
+            jType,
+            rType,
+            iType
+        };
+
+        protected Word _word;
+        protected Type _type;
+
+        public Instruction(Word word)
+        {
+            _word = word;
+        }
+
+        public abstract string FormattedBits();
+
+        public override abstract string ToString();
+
+    }
+
+    // TODO: see: https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
     public static class Disassembler
     {
-        private static List<string> _binary;
-        private static List<string> _instructions;
-
         #region opcodes
-        private static readonly Dictionary<int, string> opcodes
+        public static readonly Dictionary<int, string> opcodes
             = new Dictionary<int, string>
             {
                 { 0, "rtyp" },
@@ -50,20 +275,27 @@
                 { 6, "blez" },
                 { 7, "bgtz" },
                 { 8, "addi" },
+                { 9, "addiu" },
                 { 10, "slti" },
+                { 11, "sltiu" },
                 { 12, "andi" },
                 { 13, "ori" },
                 { 14, "xori" },
                 { 15, "lui" },
                 { 32, "lb"},
-                { 35, "lw" },
+                { 33, "lh"},
+                { 34, "lw"},
+                { 35, "lw" }, // TODO: Check lw
+                { 36, "lbu"},
+                { 37, "lhu"},
                 { 40, "sb" },
+                { 41, "sh" },
                 { 43, "sw" }
             };
         #endregion
 
         #region fcodes
-        private static readonly Dictionary<int, string> fcodes
+        public static readonly Dictionary<int, string> fcodes
             = new Dictionary<int, string>
             {
                 { 0, "sll" },
@@ -75,25 +307,30 @@
                 { 8, "jr" },
                 { 9, "jalr" },
                 { 12, "syscall" },
-                { 13, "break" },
+                { 13, "break" },  // TODO: check this code
                 { 16, "mfhi" },
-                { 17, "mtlo" },  // TODO: check this code
+                { 17, "mthi" },  
                 { 18, "mflo" },
-                { 19, "mtlo" },  // TODO: check this code
+                { 19, "mtlo" }, 
                 { 24, "mult" },
+                { 25, "multu" },
                 { 26, "div" },
+                { 27, "divu" },
                 { 32, "add" },
+                { 33, "addu" },
                 { 34, "sub" },
+                { 35, "subu" },
                 { 36, "and" },
                 { 37, "or" },
                 { 38, "xor" },
                 { 39, "nor" },
-                { 42, "slt" }
+                { 42, "slt" },
+                { 43, "sltu" }
             };
         #endregion
 
         #region registers
-        private static readonly Dictionary<int, string> registers
+        public static readonly Dictionary<int, string> registers
             = new Dictionary<int, string>
             {
                 { 0, "$zero" },
@@ -131,83 +368,35 @@
             };
         #endregion
 
-        static Disassembler()
+        public static Instruction Disassemble(Word word)
         {
-            _binary = new List<string>();
-            _instructions = new List<string>();
-        }
+            Instruction instr = null;
 
-        public static void Disassemble(BitArray word)
-        {
-            int opcode = getOpcode(word);
-
-            if (!opcodes.ContainsKey(opcode))
+            if (!opcodes.ContainsKey(word.opcode))
             {
                 Debug.Log("Opcode not found.");
+                return;
             }
-            else if (opcode == 0) // R-Instr
+            else if (word.opcode == 0) // R-Instr
             {
+                instr = new Instruciton_R(word);
+                Debug.Log(instr.ToString());
             }
-            else if (opcode == 1)
+            else if (word.opcode == 2 || word.opcode == 3) // J-Instr
             {
+                instr = new Instruction_J(word);
+                Debug.Log(instr.ToString());
             }
-            else if (opcode == 2 || opcode == 3) // J-Instr
+            else if (word.opcode == 1 ||  word.opcode > 3)
             {
-                int addr = getAddr(word);
-                Debug.Log(opcodes[opcode] + " " + addr);
+                instr = new Instruction_I(word);
+                Debug.Log(instr.ToString());
             }
-            else if (opcode == 15)
-            {
 
-            }
-            else if (opcode == 32 || opcode == 35 || opcode == 40 || opcode == 43)
-            {
-            }
-            else
-            {
-
-            }
+            return instr;
         }
 
-        private static int getOpcode(BitArray word)
-        {
-            int opcode = -1;
 
-            BitArray opcodeMask = new BitArray(6, true);
-            BitArray opcodeBits = new BitArray(6);
-            for (int idx = 0; idx <= 5; idx++)
-            {
-                opcodeBits[5 - idx] = word[idx];
-            }
-
-            opcode = getIntFromBitArray(opcodeBits.And(opcodeMask));
-
-            return opcode;
-        }
-
-        private static int getAddr(BitArray word)
-        {
-            int addr = -1;
-
-            BitArray addrMask = new BitArray(28, true);
-            BitArray addrBits = new BitArray(28);
-
-            for (int idx = 6; idx <= 31; idx++)
-            {
-                addrBits[33 - idx] = word[idx];
-            }
-
-            addr = getIntFromBitArray(addrBits.And(addrMask));
-
-            return addr;
-        }
-
-        private static int getIntFromBitArray(BitArray bitArray)
-        {
-            int[] array = new int[1];
-            bitArray.CopyTo(array, 0);
-            return array[0];
-        }
     }
 }
 
