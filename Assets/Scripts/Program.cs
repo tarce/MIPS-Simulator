@@ -43,8 +43,8 @@
             opcode = Disassembler.opcodes[word.opcode];
             addresss = word.addr;
 
-            opcodeBits = Helpers.toString(word.opcodeBits);
-            addrsBits = Helpers.toString(word.addrBits);
+            //opcodeBits = Helpers.toString(word.opcodeBits);
+            //addrsBits = Helpers.toString(word.addrBits);
         }
 
         public override string FormattedBits()
@@ -86,12 +86,12 @@
             shamt = word.shamt;
             funct = Disassembler.fcodes[word.funct];
 
-            opcodeBits = Helpers.toString(word.opcodeBits);
-            rsBits = Helpers.toString(word.rsBits);
-            rtBits = Helpers.toString(word.rtBits);
-            rdBits = Helpers.toString(word.rdBits);
-            shamtBits = Helpers.toString(word.shamtBits);
-            functBits = Helpers.toString(word.functBits);
+            //opcodeBits = Helpers.toString(word.opcodeBits);
+            //rsBits = Helpers.toString(word.rsBits);
+            //rtBits = Helpers.toString(word.rtBits);
+            //rdBits = Helpers.toString(word.rdBits);
+            //shamtBits = Helpers.toString(word.shamtBits);
+            //functBits = Helpers.toString(word.functBits);
         }
 
         public override string FormattedBits()
@@ -159,107 +159,6 @@
             }
             return instruction;
         }
-    }
-
-    public class Instruction_I : Instruction
-    {
-        private string opcode;
-        private int rs;
-        private int rt;
-        private int imm;
-
-        private string opcodeBits;
-        private string rsBits;
-        private string rtBits;
-        private string immBits;
-
-        public Instruction_I(Word word) :
-            base(word)
-        {
-            _type = Type.iType;
-
-            opcode = Disassembler.opcodes[word.opcode];
-            rs = word.rs;
-            rt = word.rt;
-            imm = word.imm;
-
-            opcodeBits = Helpers.toString(word.opcodeBits);
-            rsBits = Helpers.toString(word.rsBits);
-            rtBits = Helpers.toString(word.rtBits);
-            immBits = Helpers.toString(word.shamtBits);
-        }
-
-        public override string FormattedBits()
-        {
-            return opcodeBits + " " + rsBits + " " + rtBits + " " + immBits;
-        }
-
-        public override string ToString()
-        {
-            string instruction = "";
-            if // beq or bne
-                (_word.opcode == 4 ||
-                _word.opcode == 5)
-            {
-                instruction = opcode + " " + rs + ", " + rt + ", " + imm;
-            }
-            else if //branch (bgez, bltz), blez, bgtz
-                (_word.opcode == 1 ||
-                _word.opcode == 6 ||
-                _word.opcode == 7)
-            {
-                instruction = opcode + " " + rs + ", " + imm;
-            }
-            else if // addi, addiu, slti, sltiu, andi, ori, xori
-                (_word.opcode >= 8 && 
-                _word.opcode <= 14
-                )
-            {
-                instruction = opcode + " " + rt + ", " + rs + ", " + imm;
-            }
-            else if // lui
-                (_word.opcode == 15)
-            {
-                instruction = opcode + " " + rt + ", " + imm;
-            }
-            else
-            {
-                instruction = opcode + " " + rt + ", " + imm + "(" + rs + ")";
-            }
-            return instruction;
-        }
-    }
-
-    public abstract class Instruction
-    {
-        public enum Type
-        { 
-            jType,
-            rType,
-            iType
-        };
-
-        protected Word _word;
-        protected Type _type;
-        private bool validOpcode;
-
-        public Instruction(Word word)
-        {
-            _word = word;
-        }
-
-        protected BitArray SignExtend(int numBits, BitArray bits)
-        {
-            BitArray result = new BitArray(numBits + bits.Count);
-
-
-
-            return result;
-        } 
-
-        public abstract string FormattedBits();
-
-        public override abstract string ToString();
     }
 
     // TODO: see: https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
@@ -388,8 +287,8 @@
                 else
                 {
                     instr = new Instruciton_R(word);
-                    Debug.Log(instr.ToString());
-                    Debug.Log(instr.FormattedBits());
+                    //Debug.Log(instr.ToString());
+                    //Debug.Log(instr.FormattedBits());
                 }
             }
             else if // J-Instructions
@@ -397,18 +296,44 @@
                 word.opcode == 3) 
             {
                 instr = new Instruction_J(word);
-                Debug.Log(instr.ToString());
-                Debug.Log(instr.FormattedBits());
+                //Debug.Log(instr.ToString());
+                //Debug.Log(instr.FormattedBits());
             }
             else if // I-Instructions
                 (word.opcode == 1 || 
                 word.opcode > 3)
             {
                 instr = new Instruction_I(word);
-                Debug.Log(instr.ToString());
-                Debug.Log(instr.FormattedBits());
+                //Debug.Log(instr.ToString());
+                //Debug.Log(instr.FormattedBits());
             }
             return instr;
+        }
+
+        private static void GetOpcode(Word word)
+        {
+            BitArray opcode = word.GetBits(26, 31);
+            switch(GetInt(opcode))
+            {
+                case 0: // R-Instruction
+                    break;
+                case 2:
+                case 3:
+                    break;
+                case 1:
+                default:
+                    break;
+
+            }
+        }
+
+        private static int GetInt(BitArray bits)
+        {
+            BitArray mask = new BitArray(bits.Count, true);
+            bits = bits.And(mask);
+            int[] array = new int[1];
+            bits.CopyTo(array, 0);
+            return array[0];
         }
 
 
