@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="bitArr">The BitArray to be converted</param>
         /// <returns>Returns a string representing the BitArray.</returns>
-        public static string toString(BitArray bitArr)
+        public static string GetString(BitArray bitArr)
         {
             string bitString = "";
             foreach (bool bit in bitArr)
@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="byteArr">The byte array to be converted</param>
         /// <returns>Returns a string representing the byte array.</returns>
-        public static string toString(byte[] byteArr)
+        public static string GetString(byte[] byteArr)
         {
             string bitString = "";
             for (int idx = 0; idx < byteArr.Length; idx++)
@@ -35,14 +35,22 @@
             return bitString;
         }
 
-        public static BitArray reverse(BitArray bits)
+        /// <summary>
+        /// Reverses a BitArray in place.
+        /// </summary>
+        /// <param name="array">The BitArray to be reversed</param>
+        public static BitArray Reverse(BitArray bitArr)
         {
-            BitArray temp = new BitArray(bits.Count);
-            for (int i = 0; i < bits.Count; i++)
+            int length = bitArr.Length;
+            int mid = (length / 2);
+
+            for (int i = 0; i < mid; i++)
             {
-                temp[(bits.Count - 1) - i] = bits[i];
+                bool bit = bitArr[i];
+                bitArr[i] = bitArr[length - 1 - i];
+                bitArr[length - 1 - i] = bit;
             }
-            return temp;
+            return bitArr;
         }
     }
 }
