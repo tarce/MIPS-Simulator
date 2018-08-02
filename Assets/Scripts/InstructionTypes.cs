@@ -37,12 +37,12 @@ namespace MIPS
 
         public override string Binary()
         {
-            string opcode = Helpers.GetString(_opcodeBits);
-            string rs = Helpers.GetString(_rsBits);
-            string rt = Helpers.GetString(_rtBits);
-            string rd = Helpers.GetString(_rdBits);
-            string shamt = Helpers.GetString(_shamtBits);
-            string funct = Helpers.GetString(_functBits);
+            string opcode = Helpers.GetString(Helpers.Reverse(_opcodeBits));
+            string rs = Helpers.GetString(Helpers.Reverse(_rsBits));
+            string rt = Helpers.GetString(Helpers.Reverse(_rtBits));
+            string rd = Helpers.GetString(Helpers.Reverse(_rdBits));
+            string shamt = Helpers.GetString(Helpers.Reverse(_shamtBits));
+            string funct = Helpers.GetString(Helpers.Reverse(_functBits));
 
             return opcode + " " + rs + " " + rt + " " + rd + " " + shamt + " " + funct;
         }
@@ -67,8 +67,8 @@ namespace MIPS
 
         public override string Binary()
         {
-            string opcode = Helpers.GetString(_opcodeBits);
-            string address = Helpers.GetString(_addressBits);
+            string opcode = Helpers.GetString(Helpers.Reverse(_opcodeBits));
+            string address = Helpers.GetString(Helpers.Reverse(_addressBits));
 
             return opcode + " " + address;
         }
@@ -99,10 +99,10 @@ namespace MIPS
 
         public override string Binary()
         {
-            string opcode = Helpers.GetString(_opcodeBits);
-            string rs = Helpers.GetString(_rsBits);
-            string rt = Helpers.GetString(_rtBits);
-            string imm = Helpers.GetString(_immBits);
+            string opcode = Helpers.GetString(Helpers.Reverse(_opcodeBits));
+            string rs = Helpers.GetString(Helpers.Reverse(_rsBits));
+            string rt = Helpers.GetString(Helpers.Reverse(_rtBits));
+            string imm = Helpers.GetString(Helpers.Reverse(_immBits));
 
             return opcode + " " + rs + " " + rt + " " + imm;
         }

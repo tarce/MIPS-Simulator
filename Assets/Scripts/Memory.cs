@@ -102,7 +102,7 @@
                 return;
             }
             _bytes = bytes;
-            Array.Reverse(_bytes);
+           Array.Reverse(_bytes);
             _bits = new BitArray(_bytes);
         }
 
@@ -126,6 +126,7 @@
                 bits[idx] = _bits[startIdx];
             }
 
+            //return Helpers.Reverse(bits);
             return bits;
         }
 
@@ -226,14 +227,6 @@
         //    addr = getIntVal(addrBits,addrMask);
         //    addrBits = Helpers.reverse(addrBits);
         //}
-
-        private int getIntVal(BitArray bits, BitArray mask)
-        {
-            bits = bits.And(mask);
-            int[] array = new int[1];
-            bits.CopyTo(array, 0);
-            return array[0];
-        }
 
     }
 }

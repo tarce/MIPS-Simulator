@@ -21,12 +21,11 @@
         {
             foreach (Word word in _memory.getWords())
             {
+                Debug.Log(word.ToString());
                 Instruction instruction = Disassembler.Disassemble(word);
                 if (instruction != null)
                     Debug.Log(instruction.Binary());
-                instructions.Add(instruction);
-
-                
+                instructions.Add(instruction);                
             }
         }
     }
@@ -230,6 +229,7 @@
                     break;
                 case 8:
                     instruction = new ADDI(word);
+                    Debug.Log("ADDI");
                     break;
                 case 9:
                     break;
