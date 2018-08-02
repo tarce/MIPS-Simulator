@@ -72,27 +72,27 @@
         private BitArray _bits;
         private BitArray _bits2;
 
-        #region Type Parts Values
-        public int opcode;
-        public int rs;
-        public int rt;
-        public int rd;
-        public int shamt;   // R-type
-        public int funct;   // R-type
-        public int imm;     // I-type
-        public int addr;    // J-type
-        #endregion
+        //#region Type Parts Values
+        //public int opcode;
+        //public int rs;
+        //public int rt;
+        //public int rd;
+        //public int shamt;   // R-type
+        //public int funct;   // R-type
+        //public int imm;     // I-type
+        //public int addr;    // J-type
+        //#endregion
 
-        #region Type Parts Bits
-        public BitArray opcodeBits;
-        public BitArray rsBits;
-        public BitArray rtBits;
-        public BitArray rdBits;
-        public BitArray shamtBits;   // R-type
-        public BitArray functBits;   // R-type
-        public BitArray immBits;     // I-type
-        public BitArray addrBits;    // J-type
-        #endregion
+        //#region Type Parts Bits
+        //public BitArray opcodeBits;
+        //public BitArray rsBits;
+        //public BitArray rtBits;
+        //public BitArray rdBits;
+        //public BitArray shamtBits;   // R-type
+        //public BitArray functBits;   // R-type
+        //public BitArray immBits;     // I-type
+        //public BitArray addrBits;    // J-type
+        //#endregion
 
         public Word(byte[] bytes)
         {

@@ -21,145 +21,17 @@
         {
             foreach (Word word in _memory.getWords())
             {
-                Disassembler.Disassemble(word);
+                Instruction instruction = Disassembler.Disassemble(word);
+                if (instruction != null)
+                    Debug.Log(instruction.Binary());
+                instructions.Add(instruction);
+
+                
             }
         }
     }
 
 
-    public class Instruction_J : Instruction
-    {
-        private string opcode;
-        private int addresss;
-
-        private string opcodeBits;
-        private string addrsBits;
-
-        public Instruction_J(Word word) : 
-            base(word)
-        {
-            _type = Type.jType;
-
-            opcode = Disassembler.opcodes[word.opcode];
-            addresss = word.addr;
-
-            //opcodeBits = Helpers.toString(word.opcodeBits);
-            //addrsBits = Helpers.toString(word.addrBits);
-        }
-
-        public override string FormattedBits()
-        {
-            return opcodeBits + " " + addrsBits;
-        }
-
-        public override string ToString()
-        {
-            return opcode + ", " + addresss;
-        }
-    }
-
-    public class Instruciton_R : Instruction
-    {
-        private string opcode;
-        private int rs;
-        private int rt;
-        private int rd;
-        private int shamt;
-        private string funct;
-
-        private string opcodeBits;
-        private string rsBits;
-        private string rtBits;
-        private string rdBits;
-        private string shamtBits;
-        private string functBits;
-
-        public Instruciton_R(Word word) :
-            base(word)
-        {
-            _type = Type.rType;
-
-            opcode = Disassembler.opcodes[word.opcode];
-            rs = word.rs;
-            rt = word.rt;
-            rd = word.rd;
-            shamt = word.shamt;
-            funct = Disassembler.fcodes[word.funct];
-
-            //opcodeBits = Helpers.toString(word.opcodeBits);
-            //rsBits = Helpers.toString(word.rsBits);
-            //rtBits = Helpers.toString(word.rtBits);
-            //rdBits = Helpers.toString(word.rdBits);
-            //shamtBits = Helpers.toString(word.shamtBits);
-            //functBits = Helpers.toString(word.functBits);
-        }
-
-        public override string FormattedBits()
-        {
-            return opcodeBits + " " + rsBits + " " + rtBits + " " + rdBits + 
-                " " + shamtBits + " " + functBits;
-        }
-
-        public override string ToString()
-        {
-            string instruction = "";
-            if  // shift by amount
-                (_word.funct == 0 ||
-                _word.funct == 2 ||
-                _word.funct == 3)
-            {
-                instruction = funct + " " + rd + ", " + rt + ", " + shamt;
-            }
-            else if // shift by value
-                (_word.funct == 4 ||
-                _word.funct == 6 ||
-                _word.funct == 7)
-            {
-                instruction = funct + " " + rd + ", " + rt + ", " + rs;
-            }
-            else if // jr
-                (_word.funct == 8)
-            {
-                instruction = funct + " " + rs;
-            }
-            else if // jalr TODO: check implicit form
-                (_word.funct == 9)
-            {
-                instruction = funct + " " + rd + ", " + rs;
-            }
-            else if // syscall or break
-                (_word.funct == 12 ||
-                _word.funct == 13)
-            {
-                instruction = funct;
-            }
-            else if // mfhi, mflo 
-                (_word.funct == 16 ||
-                _word.funct == 18)
-            {
-                instruction = funct + " " + rd;
-            }
-            else if // mthi, mtlo
-                (_word.funct == 17 || 
-                _word.funct == 19)
-            {
-                instruction = funct + " " + rs;
-            }
-            else if // mult and div
-                (_word.funct == 24 ||
-                _word.funct == 25 ||
-                _word.funct == 26 ||
-                _word.funct == 27)
-            {
-                instruction = funct + " " + rs + ", " + rt;
-            }
-            else
-            {
-                instruction = funct + " " + rd + ", " + rs + ", " + rt;
-            }
-            return instruction;
-        }
-    }
 
     // TODO: see: https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html
     public static class Disassembler
@@ -272,59 +144,130 @@
 
         public static Instruction Disassemble(Word word)
         {
-            Instruction instr = null;
-            if (!opcodes.ContainsKey(word.opcode))
-            {
-                Debug.Log("Disassembler Error: Opcode not found.");
-            }
-            else if // R-Instructions
-                (word.opcode == 0) 
-            {
-                if (!fcodes.ContainsKey(word.funct))
-                {
-                    Debug.Log("Disassembler Error: Fcode not found.");
-                }
-                else
-                {
-                    instr = new Instruciton_R(word);
-                    //Debug.Log(instr.ToString());
-                    //Debug.Log(instr.FormattedBits());
-                }
-            }
-            else if // J-Instructions
-                (word.opcode == 2 || 
-                word.opcode == 3) 
-            {
-                instr = new Instruction_J(word);
-                //Debug.Log(instr.ToString());
-                //Debug.Log(instr.FormattedBits());
-            }
-            else if // I-Instructions
-                (word.opcode == 1 || 
-                word.opcode > 3)
-            {
-                instr = new Instruction_I(word);
-                //Debug.Log(instr.ToString());
-                //Debug.Log(instr.FormattedBits());
-            }
-            return instr;
-        }
+            Instruction instruction = null;
 
-        private static void GetOpcode(Word word)
-        {
             BitArray opcode = word.GetBits(26, 31);
+            BitArray funct = word.GetBits(0, 5);
             switch(GetInt(opcode))
             {
                 case 0: // R-Instruction
-                    break;
-                case 2:
-                case 3:
+                    switch(GetInt(funct))
+                    {
+                        case 0:
+                            instruction = new SLL(word);
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                        case 4:
+                            break;
+                        case 6:
+                            break;
+                        case 7:
+                            break;
+                        case 8:
+                            break;
+                        case 9:
+                            break;
+                        case 12:
+                            break;
+                        case 16:
+                            break;
+                        case 17:
+                            break;
+                        case 18:
+                            break;
+                        case 19:
+                            break;
+                        case 24:
+                            break;
+                        case 25:
+                            break;
+                        case 26:
+                            break;
+                        case 27:
+                            break;
+                        case 32:
+                            break;
+                        case 33:
+                            break;
+                        case 34:
+                            break;
+                        case 35:
+                            break;
+                        case 36:
+                            break;
+                        case 37:
+                            break;
+                        case 38:
+                            break;
+                        case 39:
+                            break;
+                        case 42:
+                            break;
+                        case 43:
+                            break;
+                        default:
+                            throw new KeyNotFoundException("Disassembler: funct not found.");
+                    }
                     break;
                 case 1:
-                default:
                     break;
-
+                case 2:
+                    instruction = new J(word);
+                    break;
+                case 3:
+                    instruction = new JAL(word);
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    instruction = new ADDI(word);
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    break;
+                case 11:
+                    break;
+                case 12:
+                    break;
+                case 13:
+                    break;
+                case 14:
+                    break;
+                case 15:
+                    break;
+                case 32:
+                    break;
+                case 33:
+                    break;
+                case 34:
+                    instruction = new LW(word);
+                    break;
+                case 36:
+                    break;
+                case 37:
+                    break;
+                case 40:
+                    break;
+                case 41:
+                    break;
+                case 43:
+                    instruction = new SW(word);
+                    break;
+                default:
+                    throw new KeyNotFoundException("Disassembler: opcode not found.");
             }
+
+            return instruction;
         }
 
         private static int GetInt(BitArray bits)
