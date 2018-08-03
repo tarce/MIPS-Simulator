@@ -52,5 +52,19 @@
             }
             return bitArr;
         }
+
+        /// <summary>
+        /// Returns the integer representation of a BitArray
+        /// </summary>
+        /// <param name="bits">The BitArray</param>
+        /// <returns>The integer representation of the BitArray</returns>
+        public static int GetInt(BitArray bitArr)
+        {
+            BitArray mask = new BitArray(bitArr.Count, true);
+            bitArr = bitArr.And(mask);
+            int[] array = new int[1];
+            bitArr.CopyTo(array, 0);
+            return array[0];
+        }
     }
 }

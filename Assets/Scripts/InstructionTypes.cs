@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace MIPS
 {
@@ -13,7 +14,7 @@ namespace MIPS
         protected int _rt;
         protected int _rd;
         protected int _shamt;
-        protected int _funct;
+        protected string _funct;
 
         protected BitArray _opcodeBits;
         protected BitArray _rsBits;
@@ -30,9 +31,15 @@ namespace MIPS
             _opcodeBits = word.GetBits(26,31);
             _rsBits = word.GetBits(21, 25);
             _rtBits = word.GetBits(16, 20);
-            _rdBits = word.GetBits(15, 11);
+            _rdBits = word.GetBits(11, 15);
             _shamtBits = word.GetBits(6, 10);
             _functBits = word.GetBits(0, 5);
+
+            _opcode = "R-Type"; //There is no opcode for R, instead uses funct
+            _rs = GetUnsignedInt(_rsBits);
+            _rt = GetUnsignedInt(_rtBits);
+            _rd = GetUnsignedInt(_rdBits);
+            _shamt = GetUnsignedInt(_shamtBits);
         }
 
         public override string Binary()
@@ -63,6 +70,9 @@ namespace MIPS
 
             _opcodeBits = word.GetBits(26, 31);
             _addressBits = word.GetBits(0, 25);
+
+            BitArray lowOrder = new BitArray(2);
+            _address =GetUnsignedInt(Concatenate(lowOrder, _addressBits));
         }
 
         public override string Binary()
@@ -71,6 +81,11 @@ namespace MIPS
             string address = Helpers.GetString(Helpers.Reverse(_addressBits));
 
             return opcode + " " + address;
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " #" + _address;
         }
     }
 
@@ -95,6 +110,9 @@ namespace MIPS
             _rsBits = word.GetBits(21, 25);
             _rtBits = word.GetBits(16, 20);
             _immBits = word.GetBits(0, 15);
+
+            _rs = GetUnsignedInt(_rsBits);
+            _rt = GetUnsignedInt(_rtBits);
         }
 
         public override string Binary()
@@ -105,6 +123,22 @@ namespace MIPS
             string imm = Helpers.GetString(Helpers.Reverse(_immBits));
 
             return opcode + " " + rs + " " + rt + " " + imm;
+        }
+
+        protected BitArray SignExtend32(BitArray bits)
+        {
+            if(bits.Count>= 32)
+            {
+                throw new IndexOutOfRangeException("SignExtend32: detected bit count >= 32");
+            } 
+            bool sign = bits[bits.Count - 1];
+            BitArray bits32 = new BitArray(32, sign);
+            for (int i = 0; i < bits.Count; i++)
+            {
+                bits32[i] = bits[i];
+            }
+
+            return bits32;
         }
     }
 
