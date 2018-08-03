@@ -22,9 +22,39 @@ namespace MIPS
             _word = word;
         }
 
-        protected BitArray SignExtend(int numBits, BitArray bits)
+        protected int GetSignedInt(BitArray bitArr)
         {
-            BitArray result = new BitArray(numBits + bits.Count);
+            int result = 0;
+            if(bitArr[bitArr.Count - 1] == false) // 0, indicates positive
+            {
+                result = Helpers.GetInt(bitArr);
+            }
+            else
+            {
+                bitArr.Not();
+                result = Helpers.GetInt(bitArr) + 1;
+                result *= -1;
+            }
+            return result;
+        }
+
+        protected int GetUnsignedInt(BitArray bitArr)
+        {
+            return Helpers.GetInt(bitArr);
+        }
+
+        protected BitArray Concatenate(BitArray lowOrder, BitArray highOrder)
+        {
+            BitArray result = new BitArray(lowOrder.Count + highOrder.Count);
+
+            for(int i = 0; i < lowOrder.Count; i++)
+            {
+                result[i] = lowOrder[i];
+            }
+            for(int i = lowOrder.Count; i < result.Count; i++)
+            {
+                result[i] = highOrder[i - lowOrder.Count];
+            }
             return result;
         }
 

@@ -21,10 +21,14 @@
         {
             foreach (Word word in _memory.getWords())
             {
-                Debug.Log(word.ToString());
+                //Debug.Log(word.ToString());
                 Instruction instruction = Disassembler.Disassemble(word);
                 if (instruction != null)
-                    Debug.Log(instruction.Binary());
+                {
+                    //Debug.Log(instruction.Binary());
+                    Debug.Log(instruction.ToString());
+                }
+                   
                 instructions.Add(instruction);                
             }
         }
@@ -57,8 +61,7 @@
                 { 15, "lui" },
                 { 32, "lb"},
                 { 33, "lh"},
-                { 34, "lw"},
-                { 35, "lw" }, // TODO: Check lw
+                { 35, "lw" },
                 { 36, "lbu"},
                 { 37, "lhu"},
                 { 40, "sb" },
@@ -147,10 +150,10 @@
 
             BitArray opcode = word.GetBits(26, 31);
             BitArray funct = word.GetBits(0, 5);
-            switch(GetInt(opcode))
+            switch(Helpers.GetInt(opcode))
             {
                 case 0: // R-Instruction
-                    switch(GetInt(funct))
+                    switch(Helpers.GetInt(funct))
                     {
                         case 0:
                             instruction = new SLL(word);
@@ -208,7 +211,7 @@
                         case 43:
                             break;
                         default:
-                            throw new KeyNotFoundException("Disassembler: funct not found.");
+                            throw new KeyNotFoundException("Disassembler: funct not found." + Helpers.GetInt(funct));
                     }
                     break;
                 case 1:
@@ -229,7 +232,6 @@
                     break;
                 case 8:
                     instruction = new ADDI(word);
-                    Debug.Log("ADDI");
                     break;
                 case 9:
                     break;
@@ -249,7 +251,7 @@
                     break;
                 case 33:
                     break;
-                case 34:
+                case 35:
                     instruction = new LW(word);
                     break;
                 case 36:
@@ -257,27 +259,22 @@
                 case 37:
                     break;
                 case 40:
+                    instruction = new SB(word);
                     break;
                 case 41:
+                    instruction = new SH(word);
                     break;
                 case 43:
                     instruction = new SW(word);
                     break;
                 default:
-                    throw new KeyNotFoundException("Disassembler: opcode not found.");
+                    throw new KeyNotFoundException("Disassembler: opcode not found." + Helpers.GetInt(opcode));
             }
 
             return instruction;
         }
 
-        private static int GetInt(BitArray bits)
-        {
-            BitArray mask = new BitArray(bits.Count, true);
-            bits = bits.And(mask);
-            int[] array = new int[1];
-            bits.CopyTo(array, 0);
-            return array[0];
-        }
+
 
 
     }

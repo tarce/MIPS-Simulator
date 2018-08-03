@@ -108,7 +108,7 @@
 
         public override string ToString()
         {
-            return Helpers.GetString(Helpers.Reverse(_bits));
+            return Helpers.GetString(_bits);
         }
 
         public BitArray GetBits(int startIdx, int endIdx)

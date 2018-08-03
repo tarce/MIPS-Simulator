@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace MIPS
 {
@@ -63,6 +64,9 @@ namespace MIPS
 
             _opcodeBits = word.GetBits(26, 31);
             _addressBits = word.GetBits(0, 25);
+
+            BitArray lowOrder = new BitArray(2);
+            _address =GetUnsignedInt(Concatenate(lowOrder, _addressBits));
         }
 
         public override string Binary()
@@ -71,6 +75,11 @@ namespace MIPS
             string address = Helpers.GetString(Helpers.Reverse(_addressBits));
 
             return opcode + " " + address;
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " #" + _address;
         }
     }
 
@@ -95,6 +104,9 @@ namespace MIPS
             _rsBits = word.GetBits(21, 25);
             _rtBits = word.GetBits(16, 20);
             _immBits = word.GetBits(0, 15);
+
+            _rs = GetUnsignedInt(_rsBits);
+            _rt = GetUnsignedInt(_rtBits);
         }
 
         public override string Binary()
@@ -105,6 +117,22 @@ namespace MIPS
             string imm = Helpers.GetString(Helpers.Reverse(_immBits));
 
             return opcode + " " + rs + " " + rt + " " + imm;
+        }
+
+        protected BitArray SignExtend32(BitArray bits)
+        {
+            if(bits.Count>= 32)
+            {
+                throw new IndexOutOfRangeException("SignExtend32: detected bit count >= 32");
+            } 
+            bool sign = bits[bits.Count - 1];
+            BitArray bits32 = new BitArray(32, sign);
+            for (int i = 0; i < bits.Count; i++)
+            {
+                bits32[i] = bits[i];
+            }
+
+            return bits32;
         }
     }
 

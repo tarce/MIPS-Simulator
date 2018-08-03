@@ -36,7 +36,7 @@ namespace MIPS
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return base.ToString();
         }
     }
 
@@ -49,7 +49,7 @@ namespace MIPS
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return base.ToString();
         }
     }
     #endregion
@@ -58,16 +58,63 @@ namespace MIPS
 
     public class ADDI : Instruction_I
     {
-
         public ADDI(Word word) :
             base(word)
         {
             _opcode = "addi";
+            _imm = GetSignedInt(SignExtend32(_immBits));
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return _opcode + " R" + _rt + ", R" + _rs + ", #" + _imm;
+        }
+    }
+
+    public class ADDIU : Instruction_I
+    {
+        public ADDIU(Word word) :
+            base(word)
+        {
+            _opcode = "addiu";
+            _imm = GetUnsignedInt(SignExtend32(_immBits));
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " R" + _rt + ", R" + _rs + ", #" + _imm;
+        }
+    }
+
+    public class SB : Instruction_I
+    {
+
+        public SB(Word word) :
+            base(word)
+        {
+            _opcode = "sb";
+            _imm = GetUnsignedInt(SignExtend32(_immBits));
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " R" + _rt + ", " + _imm + "(" + _rs + ")";
+        }
+    }
+
+    public class SH : Instruction_I
+    {
+
+        public SH(Word word) :
+            base(word)
+        {
+            _opcode = "sh";
+            _imm = GetUnsignedInt(SignExtend32(_immBits));
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " R" + _rt + ", " + _imm + "(R" + _rs + ")";
         }
     }
 
@@ -78,11 +125,12 @@ namespace MIPS
             base(word)
         {
             _opcode = "sw";
+            _imm = GetUnsignedInt(SignExtend32(_immBits));
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return _opcode + " R" + _rt + ", " + _imm + "(R" + _rs + ")";
         }
     }
 
@@ -93,11 +141,12 @@ namespace MIPS
             base(word)
         {
             _opcode = "lw";
+            _imm = GetUnsignedInt(SignExtend32(_immBits));
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return _opcode + " R" + _rt + ", " + _imm + "(" + _rs + ")";
         }
     }
 
