@@ -174,6 +174,9 @@
                             break;
                         case 12:
                             break;
+                        case 13:
+                            instruction = new BREAK(word);
+                            break;
                         case 16:
                             break;
                         case 17:
@@ -191,6 +194,7 @@
                         case 27:
                             break;
                         case 32:
+                            instruction = new ADD(word);
                             break;
                         case 33:
                             break;
@@ -223,6 +227,7 @@
                     instruction = new JAL(word);
                     break;
                 case 4:
+                    instruction = new BEQ(word);
                     break;
                 case 5:
                     break;
@@ -270,7 +275,6 @@
                 default:
                     throw new KeyNotFoundException("Disassembler: opcode not found." + Helpers.GetInt(opcode));
             }
-
             return instruction;
         }
 

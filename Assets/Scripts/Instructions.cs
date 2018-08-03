@@ -8,18 +8,58 @@ namespace MIPS
 
     #region R-Instructions
 
-    public class SLL : Instruciton_R
+    public class BREAK : Instruciton_R
     {
-
-        public SLL(Word word) :
+        public BREAK(Word word) :
             base(word)
         {
-            _opcode = "sll";
+            _funct = "break";
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return _funct;
+        }
+    }
+
+    public class SLL : Instruciton_R
+    {
+        public SLL(Word word) :
+            base(word)
+        {
+            _funct = "sll";
+            if(_rd == 0)
+            {
+                _funct = "nop";
+            }
+        }
+
+        public override string ToString()
+        {
+            string instruction;
+            if(_rd == 0)
+            {
+                instruction = _funct;
+            }
+            else
+            {
+                instruction = _funct + " R" + _rd + ", R" + _rt + ", #" + _shamt;
+            }
+            return instruction;
+        }
+    }
+
+    public class ADD : Instruciton_R
+    {
+        public ADD(Word word) :
+            base(word)
+        {
+            _funct = "add";
+        }
+
+        public override string ToString()
+        {
+            return _funct + " R" + _rd + ", R" + _rs + ", R" + _rt;
         }
     }
 
@@ -55,6 +95,23 @@ namespace MIPS
     #endregion
 
     #region I-Instructions
+
+    public class BEQ : Instruction_I
+    {
+        public BEQ(Word word) :
+            base(word)
+        {
+            _opcode = "beq";
+            BitArray lowOrder = new BitArray(2);
+            _imm = GetSignedInt(SignExtend32(
+                    Concatenate(lowOrder, _immBits)));
+        }
+
+        public override string ToString()
+        {
+            return _opcode + " R" + _rs + ", R" + _rt + ", #" + _imm;
+        }
+    }
 
     public class ADDI : Instruction_I
     {

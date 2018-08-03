@@ -14,7 +14,7 @@ namespace MIPS
         protected int _rt;
         protected int _rd;
         protected int _shamt;
-        protected int _funct;
+        protected string _funct;
 
         protected BitArray _opcodeBits;
         protected BitArray _rsBits;
@@ -31,9 +31,15 @@ namespace MIPS
             _opcodeBits = word.GetBits(26,31);
             _rsBits = word.GetBits(21, 25);
             _rtBits = word.GetBits(16, 20);
-            _rdBits = word.GetBits(15, 11);
+            _rdBits = word.GetBits(11, 15);
             _shamtBits = word.GetBits(6, 10);
             _functBits = word.GetBits(0, 5);
+
+            _opcode = "R-Type"; //There is no opcode for R, instead uses funct
+            _rs = GetUnsignedInt(_rsBits);
+            _rt = GetUnsignedInt(_rtBits);
+            _rd = GetUnsignedInt(_rdBits);
+            _shamt = GetUnsignedInt(_shamtBits);
         }
 
         public override string Binary()
